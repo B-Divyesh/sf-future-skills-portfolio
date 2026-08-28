@@ -1,29 +1,43 @@
-# Handoff — adversarial review 3
+# Handoff — perfection-loop polish 3
 
 ## Outcome
 
-Reviewed the deployed Future Skills Portfolio at commit `3db1395ee65db694a58987a6957026044ed05d29` without changing product code. The verdict in `.factory/review-3.md` is **FAIL** with six findings: mobile touch targets, incomplete checkout-claim coverage, a missing first-screen offline fact, non-result-naming visible deck controls, inconsistent unavailable-product terminology, and no portfolio restore/import path.
+All findings in `.factory/review-1.md`, `.factory/review-2.md`, and `.factory/review-3.md` are closed and verified on the live site. The repair preserves the original local-first static artifact and ceramic-studio visual identity.
 
-## Verification performed
+- Source repair: `d69e75f6631f28a00928c9402b59782423ea7832` (`fix: close polish three findings`)
+- Local verification evidence: `5408a2d263fb920f2332e7d09bca28e7a02223e2`
+- Deployment: Azure Static Web Apps `2e9a487e-9dea-4154-a99e-1f209ba6e55d`
+- Live URL: <https://future-skills-portfolio.sociobot.in>
 
-- Fresh 390×844 and 1440×900 cold-load review
-- One-click demo, realistic first viewport, Reset, exit, and byte-for-byte real/demo storage isolation
-- Offline reload and same-origin request interception
-- All 14 `.factory/claims.json` commands run separately in clean clone `/tmp/fsp-review3-xKoZFk`; all passed
-- Full clean-clone `npm test`: 16 Vitest assertions and 54 Playwright checks passed
-- Clean-clone `npm run build`: produced `dist/` with 50,889 B JS and 26,660 B CSS raw
-- Live route/title/metadata/focus/404 checks and complete link crawl
-- Factory URL verifier and axe on home, demo, privacy, terms, and 404; no console errors or axe violations
-- Live/local SHA-256 identity for HTML, JavaScript, and CSS
-- Every earlier review, polish report, verification report, and handoff checked against live behavior and current source
+## What changed
 
-## Files changed
+- Added an offline fact to the first screen and outcome-naming deck actions.
+- Made all mobile interactive targets at least 44×44 px.
+- Replaced the causal checkout wording with a mechanically testable no-purchase/no-price statement.
+- Removed stale “Keepsake Deck” wording from README and refreshed the 78-character verb-first catalog description.
+- Added previewed portfolio JSON restore with validation, merge, confirmed replace, duplicate handling, legacy export support, and demo isolation.
+- Added the portfolio-import claim and expanded regression checks, live audit coverage, copy audit, and evidence.
 
-- `.factory/review-3.md`
-- `.factory/handoff.md`
+## How to run and verify
 
-No application source, tests, dependencies, or deployment files were changed.
+```sh
+npm ci
+npm test
+npm run build
+npm run preview
+```
+
+Run each exact command in `.factory/claims.json` from a clean clone. The demo is `/?demo=1`; it uses only `demo:future-skills-portfolio:v1`. Use **Reset demo** to reseed it or **Start for real** to delete that namespace.
+
+The factory URL verifier passed locally and on production. The cold production audit is [`.factory/evidence/polish-3/live/live-audit.json`](evidence/polish-3/live/live-audit.json); it confirms real route titles/canonicals/focus/404, no console errors, same-origin demo traffic, offline demo reload, empty mobile target violations, portfolio import isolation, and zero axe serious/critical findings.
+
+## Exact quality evidence
+
+- Fresh clone `/tmp/fsp-polish3-clean-KIfgod`: `npm ci` passed with 0 vulnerabilities; all 15 claim commands passed individually; `npm test` passed (18 unit assertions and 58 browser checks); `npm run build` produced `dist/` with 55,280 B raw JS and 27,240 B raw CSS. See `.factory/evidence/polish-3/clean-clone-summary.txt`.
+- Local and live `verify-url.sh`: title, `lang`, one h1, main landmark, image alt text, and console checks passed. See `local/verify-url/verify.json` and `live/verify-url/verify.json`.
+- Playwright axe checks found zero serious/critical violations on `/`, `/demo`, `/privacy`, `/terms`, and a real 404.
+- Production mobile Lighthouse: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 0.2 s, LCP 0.2 s, CLS 0, TBT 0 ms. See `live/lighthouse-mobile.json`.
 
 ## Remaining work
 
-Resolve F-3-1 through F-3-6 in `.factory/review-3.md`, deploy, and repeat the complete review from a fresh context. The highest user-impact repair is the 44×44 px mobile target audit. Narrow the checkout copy/test so the claim remains mechanically true.
+None. No finding of any severity remains open.
