@@ -52,3 +52,12 @@ export interface ShareDeck {
   exportedAt: string;
   challenges: Challenge[];
 }
+
+export interface PortfolioExport {
+  format: "future-skills-portfolio";
+  version: 1;
+  exportedAt: string;
+  artifacts: Artifact[];
+  customChallenges: Challenge[];
+  savedIds: string[];
+}

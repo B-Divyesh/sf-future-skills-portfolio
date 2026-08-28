@@ -14,12 +14,13 @@ Sample demo: <https://future-skills-portfolio.sociobot.in/?demo=1>
 - Local work records with evidence, an observation, and a next step
 - Print-ready individual challenges and family-selected decks
 - Local challenge creation plus JSON deck import and export
+- Export portfolio JSON and restore it by merging or replacing
 - Offline demo and real workspace use after one visit
 - A separate sample workspace that never reads or changes the real portfolio
 
 Free and demo use needs no account and sends no data to another site. Browser storage holds portfolio data. See the [privacy policy](https://future-skills-portfolio.sociobot.in/privacy).
 
-New Keepsake Deck purchases are not offered because the hosted checkout is unavailable.
+Purchases are not offered in this release.
 
 ## Run locally
 

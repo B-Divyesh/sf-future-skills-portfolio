@@ -1,4 +1,4 @@
-import type { Challenge, PortfolioState, ShareDeck } from "./types";
+import type { Challenge, PortfolioExport, PortfolioState, ShareDeck } from "./types";
 import { modes } from "./types";
 
 export const STORAGE_KEY = "future-skills-portfolio:v1";
@@ -100,6 +100,50 @@ export function parseDeck(raw: string): ShareDeck {
     if (!isReuseLicensed(challenge.license)) throw new Error("Every imported challenge needs the supported CC BY 4.0 reuse license.");
   }
   return deck as ShareDeck;
+}
+
+export function makePortfolio(state: PortfolioState): PortfolioExport {
+  return {
+    format: "future-skills-portfolio",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    artifacts: structuredClone(state.artifacts),
+    customChallenges: structuredClone(state.customChallenges),
+    savedIds: [...state.savedIds],
+  };
+}
+
+export function parsePortfolio(raw: string): PortfolioState {
+  let portfolio: Partial<PortfolioExport>;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") throw new Error("invalid portfolio");
+    portfolio = parsed as Partial<PortfolioExport>;
+  } catch {
+    throw new Error("That file is not a Future Skills portfolio.");
+  }
+  if (portfolio.format !== "future-skills-portfolio" || portfolio.version !== 1 || !Array.isArray(portfolio.artifacts)) {
+    throw new Error("That file is not a Future Skills portfolio.");
+  }
+  if (portfolio.artifacts.length > 500) throw new Error("That portfolio has more than 500 work records.");
+  if (portfolio.artifacts.some((artifact) => !isArtifact(artifact))) throw new Error("One or more work records are incomplete.");
+
+  // Earlier exports contained only work records. Treat their missing optional
+  // workspace fields as empty so a family can restore a file made by a prior release.
+  const customChallenges = portfolio.customChallenges ?? [];
+  const savedIds = portfolio.savedIds ?? [];
+  if (!Array.isArray(customChallenges) || customChallenges.length > 100 || customChallenges.some((challenge) => !isChallenge(challenge))) {
+    throw new Error("One or more family challenges are incomplete or unlicensed.");
+  }
+  if (!Array.isArray(savedIds) || savedIds.length > 200 || savedIds.some((id) => typeof id !== "string")) {
+    throw new Error("The print deck in that portfolio is incomplete.");
+  }
+
+  return {
+    artifacts: [...new Map(portfolio.artifacts.map((artifact) => [artifact.id, artifact])).values()],
+    customChallenges: [...new Map(customChallenges.map((challenge) => [challenge.id, challenge])).values()],
+    savedIds: [...new Set(savedIds)],
+  };
 }
 
 export function uniqueById(items: Challenge[]): Challenge[] {

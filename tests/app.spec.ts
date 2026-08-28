@@ -34,7 +34,7 @@ test("the first screen names the job, sample action, and three concrete facts", 
   await expect(page.getByText("For families guiding ages 10–16 through printable challenges, reflection, and human review.")).toBeVisible();
   await expect(page.getByRole("link", { name: "Try it with sample data" })).toBeVisible();
   await expect(page.getByText("Opens four completed work records.")).toBeVisible();
-  for (const fact of ["8 challenges are free.", "Work stays in this browser.", "Print or export when ready."]) await expect(page.getByText(fact)).toBeVisible();
+  for (const fact of ["8 challenges are free.", "Work stays in this browser.", "Works offline after one visit."]) await expect(page.getByText(fact)).toBeVisible();
   await expect(page.getByRole("link", { name: /Buy|checkout/i })).toHaveCount(0);
   await expect(page.getByText("$19", { exact: false })).toHaveCount(0);
 });
@@ -53,13 +53,32 @@ test("the demo is one click away and shows sample work immediately", async ({ pa
 test("the standard sections, legal links, ownership, and accessible action names are present", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Complete a challenge and review the work" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Your family controls the work" })).toBeVisible();
-  await expect(page.getByRole("contentinfo").getByText(/Built by Param Factory · polish-2/)).toBeVisible();
+  await expect(page.getByRole("contentinfo").getByText(/Built by Param Factory · polish-3/)).toBeVisible();
   await expect(page.getByRole("contentinfo").getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
   await expect(page.getByRole("contentinfo").getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/terms");
   await expect(page.getByRole("button", { name: "Open challenge: The one-sheet bridge" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Add The one-sheet bridge to print deck" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Show Build challenges" })).toBeVisible();
   await expect(page.getByRole("link", { name: "CC BY 4.0 (opens Creative Commons)" })).toHaveAttribute("href", "https://creativecommons.org/licenses/by/4.0/");
+});
+
+test("every visible mobile link and button has a 44px touch target", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const path of ["/", "/?demo=1", "/privacy", "/terms"]) {
+    await page.goto(path);
+    const undersized = await page.locator("a, button").evaluateAll((elements) => elements
+      .filter((element) => {
+        const style = getComputedStyle(element);
+        const box = element.getBoundingClientRect();
+        return style.visibility !== "hidden" && style.display !== "none" && box.width > 0 && box.height > 0;
+      })
+      .map((element) => {
+        const box = element.getBoundingClientRect();
+        return { label: (element.getAttribute("aria-label") || element.textContent || "").trim(), width: Math.round(box.width), height: Math.round(box.height) };
+      })
+      .filter((target) => target.width < 44 || target.height < 44));
+    expect(undersized, `${path} has undersized targets: ${JSON.stringify(undersized)}`).toEqual([]);
+  }
 });
 
 test("privacy, terms, demo, and not-found routes each pass an axe smoke test", async ({ page }) => {

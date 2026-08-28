@@ -76,7 +76,7 @@ test("@claim:private-free-use a complete demo flow sends requests only to this s
   await expect(page.locator('input[type="email"], input[type="password"], input[accept^="image"]')).toHaveCount(0);
 });
 
-test("@claim:checkout-disabled no purchase action is shown while hosted checkout is unavailable", async ({ page }) => {
+test("@claim:checkout-disabled no purchase action or price is shown in this release", async ({ page }) => {
   await page.getByRole("button", { name: "Start for real" }).click();
   await expect(page.locator('a[href*="/checkout"]')).toHaveCount(0);
   await expect(page.getByRole("link", { name: /buy|purchase|checkout/i })).toHaveCount(0);
@@ -148,6 +148,18 @@ test("@claim:print-results prints one selected challenge or every challenge in t
 });
 
 test("@claim:portfolio-export exports all four sample work records as JSON", async ({ page }) => {
+  const familyChallenge = {
+    id: "custom-exported-route", title: "Trace a quiet route", kicker: "Compare observations", ageMin: 10, ageMax: 16, minutes: 35, modes: ["Explain"],
+    task: "Compare two routes and explain which clues made one easier to follow.", materials: ["Paper", "Pencil"], limits: ["No photos"], reflection: ["Which clue mattered?"],
+    rubric: [{ criterion: "Evidence", emerging: "A note", growing: "Two notes", strong: "Compared notes", transferable: "Explained trade-offs" }], custom: true, license: "CC BY 4.0",
+  };
+  await page.evaluate(([key, challenge]) => {
+    const state = JSON.parse(localStorage.getItem(key) || "{}");
+    state.customChallenges = [challenge];
+    state.savedIds = [...state.savedIds, challenge.id];
+    localStorage.setItem(key, JSON.stringify(state));
+  }, [DEMO_KEY, familyChallenge]);
+  await page.reload();
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export portfolio JSON" }).click();
   const download = await downloadPromise;
@@ -157,6 +169,41 @@ test("@claim:portfolio-export exports all four sample work records as JSON", asy
   const payload = JSON.parse(Buffer.concat(chunks).toString("utf8"));
   expect(payload.format).toBe("future-skills-portfolio");
   expect(payload.artifacts).toHaveLength(4);
+  expect(payload.savedIds).toHaveLength(5);
+  expect(payload.customChallenges).toEqual([familyChallenge]);
+});
+
+test("@claim:portfolio-import previews, merges, and replaces portfolio JSON without leaving demo storage", async ({ page }) => {
+  const realValue = JSON.stringify({ sentinel: "real portfolio stays untouched" });
+  await page.evaluate(([key, value]) => localStorage.setItem(key, value), [REAL_KEY, realValue]);
+  const demo = await page.evaluate((key) => JSON.parse(localStorage.getItem(key) || "{}"), DEMO_KEY);
+  const newRecord = {
+    id: "restored-record", challengeId: "explain-black-box", title: "Restored rule notes", completedOn: "2026-08-27", evidence: "A rule table and a counterexample.", observation: "The restored note names the test that ruled out a second rule.", nextStep: "Try a two-input rule.", reviewer: "Adult", scores: { "Reasoning trail": 3, "Explain craft": 3, Judgment: 3, Reflection: 3 }, createdAt: "2026-08-27T12:00:00.000Z",
+  };
+  const importFile = (artifacts: unknown[]) => ({
+    name: "future-skills-portfolio.json", mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify({ format: "future-skills-portfolio", version: 1, exportedAt: new Date().toISOString(), artifacts, customChallenges: [], savedIds: ["explain-black-box"] })),
+  });
+
+  await page.locator("#portfolio-import").setInputFiles({ name: "invalid.json", mimeType: "application/json", buffer: Buffer.from('{"artifacts":[]}') });
+  await expect(page.locator("#toast")).toHaveText("That file is not a Future Skills portfolio.");
+
+  await page.locator("#portfolio-import").setInputFiles(importFile([demo.artifacts[0], newRecord]));
+  await expect(page.getByRole("dialog", { name: "Import portfolio JSON" })).toBeVisible();
+  await expect(page.getByText("Duplicate IDs")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Merge 1 work record" })).toBeVisible();
+  await page.getByRole("button", { name: "Merge 1 work record" }).click();
+  await expect(page.locator(".artifact-list").getByRole("heading", { name: "Restored rule notes" })).toBeVisible();
+  expect(await page.evaluate((key) => localStorage.getItem(key), REAL_KEY)).toBe(realValue);
+  expect(await page.evaluate((key) => localStorage.getItem(key), DEMO_KEY)).toContain("Restored rule notes");
+
+  await page.locator("#portfolio-import").setInputFiles(importFile([newRecord]));
+  await expect(page.getByRole("button", { name: "Replace 5 work records" })).toBeVisible();
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Replace 5 work records" }).click();
+  await expect(page.locator(".artifact-list > li")).toHaveCount(1);
+  await expect(page.locator(".artifact-list").getByRole("heading", { name: "Restored rule notes" })).toBeVisible();
+  expect(await page.evaluate((key) => localStorage.getItem(key), REAL_KEY)).toBe(realValue);
 });
 
 test("@claim:deck-export exports the selected challenge deck with reuse licenses", async ({ page }) => {

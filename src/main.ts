@@ -2,13 +2,13 @@ import "./styles.css";
 import { captureLicense, hasOptimisticUnlock, verifyLicense } from "./billing";
 import { challenges, freeChallenges } from "./data";
 import { DEMO_STORAGE_KEY, freshDemoState } from "./demo";
-import { downloadJson, loadState, makeDeck, parseDeck, REUSE_LICENSE, saveState, uniqueById } from "./storage";
+import { downloadJson, loadState, makeDeck, makePortfolio, parseDeck, parsePortfolio, REUSE_LICENSE, saveState, uniqueById } from "./storage";
 import { modes, type Artifact, type Challenge, type PortfolioState, type SkillMode } from "./types";
 
 const app = document.querySelector<HTMLDivElement>("#app") as HTMLDivElement;
 if (!app) throw new Error("Application root is missing");
 
-const BUILD_ID = "polish-2";
+const BUILD_ID = "polish-3";
 const PRODUCT = "Future Skills Portfolio";
 const ORIGIN = "https://future-skills-portfolio.sociobot.in";
 
@@ -47,6 +47,7 @@ let modeFilter: SkillMode | "All" = "All";
 let ageFilter: "All" | "10–12" | "13–16" = "All";
 let online = navigator.onLine;
 let lastFocus: HTMLElement | null = null;
+let pendingPortfolioImport: PortfolioState | null = null;
 
 const escapeHtml = (value: string): string => value.replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char] ?? char);
 const allChallenges = (): Challenge[] => uniqueById([...(unlocked && !route.demo ? challenges : freeChallenges), ...state.customChallenges]);
@@ -118,7 +119,7 @@ function challengeCard(challenge: Challenge): string {
       <span class="card-kicker">${escapeHtml(challenge.kicker)}</span><strong>${title}</strong>
       <span class="card-meta">Ages ${challenge.ageMin}–${challenge.ageMax} · ${challenge.minutes} min</span><span class="pill-row">${challenge.modes.map(modePill).join("")}</span>
     </button>
-    <button class="save-pin" type="button" data-action="toggle-save" data-id="${challenge.id}" aria-label="${saved ? "Remove" : "Add"} ${title} ${saved ? "from" : "to"} print deck" aria-pressed="${saved}">${saved ? "✓ In deck" : "+ Deck"}</button>
+    <button class="save-pin" type="button" data-action="toggle-save" data-id="${challenge.id}" aria-label="${saved ? "Remove" : "Add"} ${title} ${saved ? "from" : "to"} print deck" aria-pressed="${saved}">${saved ? "Remove from print deck" : "Add to print deck"}</button>
   </li>`;
 }
 
@@ -174,7 +175,7 @@ function portfolioSection(): string {
   return `<section id="portfolio" class="section portfolio-section" aria-labelledby="portfolio-title"><div class="section-heading"><div><p class="eyebrow">Portfolio in this browser</p><h2 id="portfolio-title" tabindex="-1">Track completed work in a portfolio</h2></div><p>${route.demo ? "Four sample work records are ready to inspect." : "Save a short record after each completed challenge."}</p></div>
     <div class="progress-plinth"><div class="progress-copy"><p class="progress-label"><strong>${state.artifacts.length}</strong> / 4 work records</p><progress class="progress-track" aria-label="Work records completed" max="4" value="${Math.min(state.artifacts.length, 4)}">${state.artifacts.length} of 4 work records</progress></div><div class="progress-copy"><p class="progress-label"><strong>${completedModes.size}</strong> / 3 skill modes</p><progress class="progress-track" aria-label="Skill modes covered" max="3" value="${Math.min(completedModes.size, 3)}">${completedModes.size} of 3 skill modes</progress></div><p class="privacy-note"><span aria-hidden="true">⌂</span> Stored in this browser</p></div>
     ${state.artifacts.length ? `<ol class="artifact-list">${state.artifacts.map((artifact) => { const challenge = byId(artifact.challengeId); return `<li><div class="artifact-date"><span>${new Date(`${artifact.completedOn}T12:00:00`).toLocaleDateString(undefined, { month: "short" })}</span><strong>${new Date(`${artifact.completedOn}T12:00:00`).getDate()}</strong></div><div><p class="eyebrow">${challenge ? escapeHtml(challenge.title) : "Imported challenge"} · ${artifact.reviewer} review</p><h3>${escapeHtml(artifact.title)}</h3><p>${escapeHtml(artifact.observation)}</p><details><summary>Evidence and next step</summary><p>${escapeHtml(artifact.evidence)}</p><p><strong>Next:</strong> ${escapeHtml(artifact.nextStep)}</p></details></div><button class="icon-button" type="button" data-action="delete-artifact" data-id="${artifact.id}" aria-label="Delete work record ${escapeHtml(artifact.title)}">×</button></li>`; }).join("")}</ol>` : `<div class="empty-state artifact-empty"><span class="empty-vessel" aria-hidden="true"></span><h3>No work records yet</h3><p>Complete a challenge, then record what was made and observed.</p><a class="button secondary" href="${workspaceHref("#deck")}">Choose a challenge</a></div>`}
-    <div class="portfolio-actions"><button class="button secondary" type="button" data-action="export-portfolio" ${state.artifacts.length ? "" : "disabled"}>Export portfolio JSON</button>${state.artifacts.length ? '<button class="text-button danger-link" type="button" data-action="clear-portfolio">Erase local portfolio</button>' : ""}</div></section>`;
+    <div class="portfolio-actions"><button class="button secondary" type="button" data-action="export-portfolio" ${state.artifacts.length ? "" : "disabled"}>Export portfolio JSON</button><label class="button secondary text-upload">Import portfolio JSON<input id="portfolio-import" type="file" accept="application/json,.json"></label>${state.artifacts.length ? '<button class="text-button danger-link" type="button" data-action="clear-portfolio">Erase local portfolio</button>' : ""}</div></section>`;
 }
 
 function makeSection(): string {
@@ -193,7 +194,7 @@ function homePage(): string {
   const printLabel = state.savedIds.length ? `Print deck (${state.savedIds.length})` : "Print selected challenge";
   if (route.demo) return shell(`<div id="connection-status" class="connection-status ${online ? "" : "is-visible"}" role="status">You’re offline. This page and your local portfolio still work.</div><main id="main">${demoOverview()}${portfolioSection()}${deckSection()}${howSection()}${privacySection()}${makeSection()}</main>${printArea()}<div id="dialog-root"></div><div id="toast" class="toast" role="status" aria-live="polite"></div>`);
   return shell(`<div id="connection-status" class="connection-status ${online ? "" : "is-visible"}" role="status">You’re offline. This page and your local portfolio still work.</div><main id="main">
-    <section class="hero"><div class="hero-copy"><p class="eyebrow">Printable challenges · ages 10–16</p><h1 tabindex="-1">Build a portfolio of math and computing work</h1><p class="hero-lede">For families guiding ages 10–16 through printable challenges, reflection, and human review.</p><div class="hero-actions"><div><a class="button primary" href="/?demo=1">Try it with sample data</a><small>Opens four completed work records.</small></div><a class="button secondary" href="${workspaceHref("#deck")}">Browse free challenges</a><button class="text-button print-hero" type="button" data-action="print-deck">${printLabel}</button></div><ul class="hero-facts"><li>8 challenges are free.</li><li>Work stays in this browser.</li><li>Print or export when ready.</li></ul></div>
+    <section class="hero"><div class="hero-copy"><p class="eyebrow">Printable challenges · ages 10–16</p><h1 tabindex="-1">Build a portfolio of math and computing work</h1><p class="hero-lede">For families guiding ages 10–16 through printable challenges, reflection, and human review.</p><div class="hero-actions"><div><a class="button primary" href="/?demo=1">Try it with sample data</a><small>Opens four completed work records.</small></div><a class="button secondary" href="${workspaceHref("#deck")}">Browse free challenges</a><button class="text-button print-hero" type="button" data-action="print-deck">${printLabel}</button></div><ul class="hero-facts"><li>8 challenges are free.</li><li>Work stays in this browser.</li><li>Works offline after one visit.</li></ul></div>
       <figure class="hero-art"><picture><source media="(max-width: 720px)" srcset="/assets/hero-ceramic-720.webp"><img src="/assets/hero-ceramic.webp" width="1200" height="800" alt="Four hand-built ceramic forms resting on translucent ice slabs" fetchpriority="high" decoding="async"></picture><figcaption>Four ceramic forms represent four example skills.</figcaption></figure></section>
     <section class="proof-strip" aria-label="What is included"><div><strong>8</strong><span>free challenges</span></div><div><strong>6</strong><span>skill modes</span></div><div><strong>1</strong><span>adult or peer rubric</span></div><div><strong>0</strong><span>required accounts</span></div></section>
     ${howSection()}${deckSection()}${privacySection()}${portfolioSection()}${makeSection()}
@@ -280,7 +281,61 @@ function showArtifactDialog(challenge: Challenge): void {
 function closeDialog(): void {
   const root = document.querySelector<HTMLDivElement>("#dialog-root");
   if (root) root.innerHTML = "";
+  pendingPortfolioImport = null;
   lastFocus?.focus();
+}
+
+function workRecordLabel(count: number): string {
+  return `${count} ${count === 1 ? "work record" : "work records"}`;
+}
+
+function showPortfolioImportDialog(imported: PortfolioState): void {
+  lastFocus = document.activeElement as HTMLElement;
+  pendingPortfolioImport = imported;
+  const root = document.querySelector<HTMLDivElement>("#dialog-root");
+  if (!root) return;
+  const currentIds = new Set(state.artifacts.map((artifact) => artifact.id));
+  const newRecords = imported.artifacts.filter((artifact) => !currentIds.has(artifact.id)).length;
+  const duplicateRecords = imported.artifacts.length - newRecords;
+  const currentCustomIds = new Set(state.customChallenges.map((challenge) => challenge.id));
+  const newChallenges = imported.customChallenges.filter((challenge) => !currentCustomIds.has(challenge.id)).length;
+  root.innerHTML = `<div class="dialog-backdrop"><section class="dialog portfolio-import-dialog" role="dialog" aria-modal="true" aria-labelledby="portfolio-import-title" aria-describedby="portfolio-import-summary"><button class="dialog-close" type="button" data-action="close-dialog" aria-label="Close portfolio import preview">×</button><p class="eyebrow">Local file preview</p><h2 id="portfolio-import-title">Import portfolio JSON</h2><p id="portfolio-import-summary">This file has ${workRecordLabel(imported.artifacts.length)}, ${newChallenges} ${newChallenges === 1 ? "family challenge" : "family challenges"}, and ${imported.savedIds.length} print deck choices.</p><dl class="import-summary"><div><dt>Merge</dt><dd>Adds ${workRecordLabel(newRecords)} and keeps your current record when an ID matches.</dd></div><div><dt>Replace</dt><dd>Removes ${workRecordLabel(state.artifacts.length)} in this ${route.demo ? "demo" : "browser"} and restores this file.</dd></div>${duplicateRecords ? `<div><dt>Duplicate IDs</dt><dd>${workRecordLabel(duplicateRecords)} already ${duplicateRecords === 1 ? "exists" : "exist"} here. Merge keeps the current version.</dd></div>` : ""}</dl><div class="dialog-actions"><button class="button secondary" type="button" data-action="merge-portfolio">Merge ${workRecordLabel(newRecords)}</button><button class="button primary" type="button" data-action="replace-portfolio">Replace ${workRecordLabel(state.artifacts.length)}</button></div></section></div>`;
+  root.querySelector<HTMLButtonElement>("[data-action='merge-portfolio']")?.focus();
+  bindDialogEvents();
+}
+
+function mergePortfolio(imported: PortfolioState): number {
+  const currentArtifactIds = new Set(state.artifacts.map((artifact) => artifact.id));
+  const newArtifacts = imported.artifacts.filter((artifact) => !currentArtifactIds.has(artifact.id));
+  const currentCustomIds = new Set(state.customChallenges.map((challenge) => challenge.id));
+  const newCustomChallenges = imported.customChallenges.filter((challenge) => !currentCustomIds.has(challenge.id));
+  state = {
+    artifacts: [...state.artifacts, ...newArtifacts],
+    customChallenges: [...state.customChallenges, ...newCustomChallenges],
+    savedIds: [...new Set([...state.savedIds, ...imported.savedIds])],
+  };
+  return newArtifacts.length;
+}
+
+function finishPortfolioMerge(): void {
+  if (!pendingPortfolioImport) return;
+  const added = mergePortfolio(pendingPortfolioImport);
+  const saved = persist(`Portfolio merged: ${workRecordLabel(added)} added.`);
+  closeDialog();
+  render();
+  if (saved) requestAnimationFrame(() => document.querySelector("#portfolio")?.scrollIntoView({ behavior: "smooth" }));
+}
+
+function finishPortfolioReplace(): void {
+  if (!pendingPortfolioImport) return;
+  const imported = pendingPortfolioImport;
+  const currentCount = state.artifacts.length;
+  if (!confirm(`Replace ${workRecordLabel(currentCount)} in this ${route.demo ? "demo" : "browser"} with ${workRecordLabel(imported.artifacts.length)} from this file? This cannot be undone.`)) return;
+  state = structuredClone(imported);
+  const saved = persist(`Portfolio replaced with ${workRecordLabel(imported.artifacts.length)}.`);
+  closeDialog();
+  render();
+  if (saved) requestAnimationFrame(() => document.querySelector("#portfolio")?.scrollIntoView({ behavior: "smooth" }));
 }
 
 function bindDialogEvents(): void {
@@ -288,6 +343,8 @@ function bindDialogEvents(): void {
   const dialog = document.querySelector<HTMLElement>(".dialog");
   backdrop?.addEventListener("click", (event) => { if (event.target === backdrop) closeDialog(); });
   dialog?.querySelector<HTMLElement>(".dialog-close")?.addEventListener("click", closeDialog);
+  dialog?.querySelector<HTMLElement>("[data-action='merge-portfolio']")?.addEventListener("click", finishPortfolioMerge);
+  dialog?.querySelector<HTMLElement>("[data-action='replace-portfolio']")?.addEventListener("click", finishPortfolioReplace);
   dialog?.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeDialog();
     if (event.key !== "Tab") return;
@@ -360,12 +417,14 @@ function bindEvents(): void {
     if (action === "log") { const challenge = byId(id); if (challenge) showArtifactDialog(challenge); }
     if (action === "print-one") { app.querySelector(".print-area")?.replaceWith(htmlToElement(printArea([id]))); window.print(); }
     if (action === "print-deck") { window.print(); }
-    if (action === "export-portfolio") { downloadJson(`future-skills-portfolio-${new Date().toISOString().slice(0, 10)}.json`, { format: "future-skills-portfolio", version: 1, exportedAt: new Date().toISOString(), artifacts: state.artifacts }); toast("Portfolio export prepared."); }
+    if (action === "export-portfolio") { downloadJson(`future-skills-portfolio-${new Date().toISOString().slice(0, 10)}.json`, makePortfolio(state)); toast("Portfolio export prepared."); }
     if (action === "export-deck") { const saved = state.savedIds.map(byId).filter((challenge): challenge is Challenge => Boolean(challenge)); const exportable = saved.length ? saved : state.customChallenges; if (!exportable.length) { toast("Add a challenge to the print deck before exporting.", true); return; } downloadJson("future-skills-deck.json", makeDeck(exportable)); toast("Challenge deck export prepared."); }
     if (action === "delete-artifact") { const artifact = state.artifacts.find((item) => item.id === id); if (artifact && confirm(`Delete “${artifact.title}” from this browser?`)) { state.artifacts = state.artifacts.filter((item) => item.id !== id); persist("Work record deleted."); render(); } }
     if (action === "clear-portfolio" && confirm(`Erase all ${state.artifacts.length} artifacts from this browser?`)) { state.artifacts = []; persist("Local portfolio erased."); render(); }
     if (action === "reset-demo") { state = freshDemoState(); saveState(state, localStorage, DEMO_STORAGE_KEY); selectedId = state.savedIds[0] ?? "paper-bridge"; render(); toast("Demo reset to its sample portfolio."); }
     if (action === "start-real") { try { localStorage.removeItem(DEMO_STORAGE_KEY); } catch { /* The real workspace still remains separate. */ } navigate("/"); }
+    if (action === "merge-portfolio") finishPortfolioMerge();
+    if (action === "replace-portfolio") finishPortfolioReplace();
     if (action === "close-dialog") closeDialog();
   }));
 
@@ -397,6 +456,19 @@ function bindEvents(): void {
       persist(`${imported.length} ${imported.length === 1 ? "challenge" : "challenges"} imported into this ${route.demo ? "demo" : "browser"}.`);
       render();
     } catch (error) { toast(error instanceof Error ? error.message : "That deck could not be read.", true); input.value = ""; }
+  });
+
+  document.querySelector<HTMLInputElement>("#portfolio-import")?.addEventListener("change", async (event) => {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    try {
+      showPortfolioImportDialog(parsePortfolio(await file.text()));
+    } catch (error) {
+      toast(error instanceof Error ? error.message : "That portfolio could not be read.", true);
+    } finally {
+      input.value = "";
+    }
   });
 
 }

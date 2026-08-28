@@ -1,0 +1,139 @@
+{
+  "base": "http://127.0.0.1:4174",
+  "checkedAt": "2026-08-28T14:03:19.939Z",
+  "routes": {
+    "/": {
+      "status": 200,
+      "title": "Future Skills Portfolio — Printable math challenges",
+      "h1": "Build a portfolio of math and computing work",
+      "canonical": "https://future-skills-portfolio.sociobot.in/"
+    },
+    "/demo": {
+      "status": 200,
+      "title": "Demo — Future Skills Portfolio",
+      "h1": "Inspect four completed work records",
+      "canonical": "https://future-skills-portfolio.sociobot.in/demo"
+    },
+    "/privacy": {
+      "status": 200,
+      "title": "Privacy — Future Skills Portfolio",
+      "h1": "How your work stays private",
+      "canonical": "https://future-skills-portfolio.sociobot.in/privacy"
+    },
+    "/terms": {
+      "status": 200,
+      "title": "Terms — Future Skills Portfolio",
+      "h1": "Terms of use",
+      "canonical": "https://future-skills-portfolio.sociobot.in/terms"
+    },
+    "/missing-challenge": {
+      "status": 200,
+      "title": "Page not found — Future Skills Portfolio",
+      "h1": "Page not found",
+      "canonical": "https://future-skills-portfolio.sociobot.in/missing-challenge"
+    }
+  },
+  "requests": [
+    "http://127.0.0.1:4174/?cold=polish-3",
+    "http://127.0.0.1:4174/assets/hero-ceramic-720.webp",
+    "http://127.0.0.1:4174/assets/index-Pa0Z51W2.js",
+    "http://127.0.0.1:4174/assets/index-B0KyY93p.css",
+    "http://127.0.0.1:4174/assets/hero-ceramic.webp",
+    "http://127.0.0.1:4174/?cold=polish-3",
+    "http://127.0.0.1:4174/assets/hero-ceramic-720.webp",
+    "http://127.0.0.1:4174/assets/index-Pa0Z51W2.js",
+    "http://127.0.0.1:4174/assets/index-B0KyY93p.css",
+    "http://127.0.0.1:4174/assets/hero-ceramic.webp",
+    "http://127.0.0.1:4174/?cold=polish-3",
+    "http://127.0.0.1:4174/assets/hero-ceramic-720.webp",
+    "http://127.0.0.1:4174/assets/index-Pa0Z51W2.js",
+    "http://127.0.0.1:4174/assets/index-B0KyY93p.css",
+    "http://127.0.0.1:4174/assets/hero-ceramic.webp",
+    "http://127.0.0.1:4174/demo?cold=polish-3",
+    "http://127.0.0.1:4174/assets/hero-ceramic-720.webp",
+    "http://127.0.0.1:4174/assets/index-Pa0Z51W2.js",
+    "http://127.0.0.1:4174/assets/index-B0KyY93p.css",
+    "http://127.0.0.1:4174/privacy?cold=polish-3",
+    "http://127.0.0.1:4174/assets/hero-ceramic-720.webp",
+    "http://127.0.0.1:4174/assets/index-Pa0Z51W2.js",
+    "http://127.0.0.1:4174/assets/index-B0KyY93p.css",
+    "http://127.0.0.1:4174/terms?cold=polish-3",
+    "http://127.0.0.1:4174/assets/hero-ceramic-720.webp",
+    "http://127.0.0.1:4174/assets/index-Pa0Z51W2.js",
+    "http://127.0.0.1:4174/assets/index-B0KyY93p.css",
+    "http://127.0.0.1:4174/missing-challenge?cold=polish-3",
+    "http://127.0.0.1:4174/assets/hero-ceramic-720.webp",
+    "http://127.0.0.1:4174/assets/index-Pa0Z51W2.js",
+    "http://127.0.0.1:4174/assets/index-B0KyY93p.css",
+    "http://127.0.0.1:4174/?cold=focus-polish-3",
+    "http://127.0.0.1:4174/assets/hero-ceramic-720.webp",
+    "http://127.0.0.1:4174/assets/index-Pa0Z51W2.js",
+    "http://127.0.0.1:4174/assets/index-B0KyY93p.css",
+    "http://127.0.0.1:4174/assets/hero-ceramic.webp",
+    "http://127.0.0.1:4174/?cold=polish-3",
+    "http://127.0.0.1:4174/assets/hero-ceramic-720.webp",
+    "http://127.0.0.1:4174/assets/index-Pa0Z51W2.js",
+    "http://127.0.0.1:4174/assets/index-B0KyY93p.css",
+    "http://127.0.0.1:4174/assets/hero-ceramic.webp",
+    "http://127.0.0.1:4174/?demo=1&cold=first-viewport-polish-3",
+    "http://127.0.0.1:4174/assets/hero-ceramic-720.webp",
+    "http://127.0.0.1:4174/assets/index-Pa0Z51W2.js",
+    "http://127.0.0.1:4174/assets/index-B0KyY93p.css",
+    "http://127.0.0.1:4174/assets/hero-ceramic.webp"
+  ],
+  "axe": {
+    "/": 0,
+    "/demo": 0,
+    "/privacy": 0,
+    "/terms": 0,
+    "/missing-challenge": 0
+  },
+  "mobile": {
+    "scrollWidth": 390,
+    "clientWidth": 390
+  },
+  "touchTargets": {
+    "/": {
+      "undersized": []
+    },
+    "/?demo=1": {
+      "undersized": []
+    },
+    "/privacy": {
+      "undersized": []
+    },
+    "/terms": {
+      "undersized": []
+    }
+  },
+  "offline": {
+    "title": "Demo — Future Skills Portfolio",
+    "workRecords": 4,
+    "statusVisible": true
+  },
+  "demo": {
+    "workRecords": 4,
+    "firstViewportRecords": 2,
+    "reset": true,
+    "realBytesUnchanged": true,
+    "discardedOnExit": true
+  },
+  "portfolioImport": {
+    "preview": true,
+    "mergedRecords": 1,
+    "realBytesUnchanged": true
+  },
+  "focus": {
+    "privacyClick": true,
+    "back": true
+  },
+  "externalLink": {
+    "label": "CC BY 4.0 (opens Creative Commons)",
+    "href": "https://creativecommons.org/licenses/by/4.0/",
+    "status": 200
+  },
+  "errors": [],
+  "requestOrigins": [
+    "http://127.0.0.1:4174"
+  ]
+}

@@ -22,7 +22,7 @@
   },
   {
     "id": "checkout-disabled",
-    "claim": "No purchase action or price is shown while the hosted checkout is unavailable.",
+    "claim": "No purchase action or price is shown in this release.",
     "where": "landing page, privacy page, terms, README",
     "test": "npm run test:claims -- --grep @claim:checkout-disabled",
     "sandbox": "fresh demo context; leave for the real workspace and assert no checkout, purchase, price, or buy action"
@@ -58,9 +58,16 @@
   {
     "id": "portfolio-export",
     "claim": "A family can export all saved work records as portfolio JSON.",
-    "where": "portfolio action, README",
+    "where": "portfolio action, README, demo documentation",
     "test": "npm run test:claims -- --grep @claim:portfolio-export",
     "sandbox": "fresh demo context; download JSON and assert format plus all four sample work records"
+  },
+  {
+    "id": "portfolio-import",
+    "claim": "A family can preview, merge, or replace local portfolio JSON work records.",
+    "where": "portfolio action, README, demo documentation",
+    "test": "npm run test:claims -- --grep @claim:portfolio-import",
+    "sandbox": "fresh demo context; reject an invalid file, preview a file with duplicate and new records, then merge and explicitly replace it while asserting only demo storage changes"
   },
   {
     "id": "deck-export",

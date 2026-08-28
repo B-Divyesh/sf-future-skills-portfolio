@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { challenges, freeChallenges } from "./data";
-import { loadState, makeDeck, parseDeck, REUSE_LICENSE, saveState, uniqueById } from "./storage";
+import { loadState, makeDeck, makePortfolio, parseDeck, parsePortfolio, REUSE_LICENSE, saveState, uniqueById } from "./storage";
 
 class MemoryStorage {
   value: string | null = null;
@@ -63,6 +63,24 @@ describe("shareable challenge decks", () => {
 
   it("deduplicates imported challenges by id", () => {
     expect(uniqueById([challenges[0]!, challenges[0]!])).toHaveLength(1);
+  });
+});
+
+describe("portable portfolios", () => {
+  it("round-trips work records and workspace choices", () => {
+    const state = {
+      artifacts: [{ id: "work-1", challengeId: "paper-bridge", title: "Folded bridge", completedOn: "2026-08-28", evidence: "Three tests", observation: "The rails moved weight outward.", nextStep: "Try taller rails.", reviewer: "Adult" as const, scores: { Judgment: 3 }, createdAt: "2026-08-28T12:00:00.000Z" }],
+      customChallenges: [],
+      savedIds: ["paper-bridge"],
+    };
+    expect(parsePortfolio(JSON.stringify(makePortfolio(state)))).toEqual(state);
+  });
+
+  it("accepts earlier record-only exports and rejects malformed files", () => {
+    const previous = { format: "future-skills-portfolio", version: 1, artifacts: [{ id: "work-1", challengeId: "paper-bridge", title: "Folded bridge", completedOn: "2026-08-28", evidence: "Three tests", observation: "The rails moved weight outward.", nextStep: "Try taller rails.", reviewer: "Adult", scores: { Judgment: 3 }, createdAt: "2026-08-28T12:00:00.000Z" }] };
+    expect(parsePortfolio(JSON.stringify(previous))).toEqual({ artifacts: previous.artifacts, customChallenges: [], savedIds: [] });
+    expect(() => parsePortfolio('{"format":"future-skills-portfolio","version":1,"artifacts":[{}]}')).toThrow("incomplete");
+    expect(() => parsePortfolio("null")).toThrow("not a Future Skills portfolio");
   });
 });
 

@@ -2,7 +2,7 @@
 
 Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Sentences are segmented with `Intl.Segmenter`; words use Unicode letter and number tokens.
 
-- Sentences or fragments: 203
+- Sentences or fragments: 204
 - Over 22 words: 0
 - Banned-word matches: 0
 - Result: PASS
@@ -18,7 +18,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 7 | 3 | Print selected challenge | — |
 | 8 | 4 | 8 challenges are free. | — |
 | 9 | 5 | Work stays in this browser. | — |
-| 10 | 5 | Print or export when ready. | — |
+| 10 | 5 | Works offline after one visit. | — |
 | 11 | 7 | Four ceramic forms represent four example skills. | — |
 | 12 | 1 | 8 | — |
 | 13 | 2 | FREE CHALLENGES | — |
@@ -64,7 +64,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 53 | 5 | Ages 10–14 · 45 min | — |
 | 54 | 1 | Build | — |
 | 55 | 1 | Model | — |
-| 56 | 1 | + Deck | — |
+| 56 | 4 | Add to print deck | — |
 | 57 | 1 | NO. | — |
 | 58 | 1 | 02 | — |
 | 59 | 5 | Turn examples into a rule | — |
@@ -72,7 +72,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 61 | 5 | Ages 10–16 · 30 min | — |
 | 62 | 1 | Explain | — |
 | 63 | 1 | Model | — |
-| 64 | 1 | + Deck | — |
+| 64 | 4 | Add to print deck | — |
 | 65 | 1 | NO. | — |
 | 66 | 1 | 03 | — |
 | 67 | 5 | Find ambiguity by running it | — |
@@ -80,7 +80,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 69 | 5 | Ages 10–13 · 35 min | — |
 | 70 | 1 | Debug | — |
 | 71 | 1 | Collaborate | — |
-| 72 | 1 | + Deck | — |
+| 72 | 4 | Add to print deck | — |
 | 73 | 1 | NO. | — |
 | 74 | 1 | 04 | — |
 | 75 | 3 | Make values computable | — |
@@ -88,7 +88,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 77 | 5 | Ages 12–16 · 60 min | — |
 | 78 | 1 | Model | — |
 | 79 | 1 | Critique | — |
-| 80 | 1 | + Deck | — |
+| 80 | 4 | Add to print deck | — |
 | 81 | 1 | NO. | — |
 | 82 | 1 | 05 | — |
 | 83 | 4 | Separate evidence from polish | — |
@@ -96,7 +96,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 85 | 5 | Ages 12–16 · 40 min | — |
 | 86 | 1 | Critique | — |
 | 87 | 1 | Explain | — |
-| 88 | 1 | + Deck | — |
+| 88 | 4 | Add to print deck | — |
 | 89 | 1 | NO. | — |
 | 90 | 1 | 06 | — |
 | 91 | 6 | Design rules another person can run | — |
@@ -105,7 +105,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 94 | 1 | Build | — |
 | 95 | 1 | Explain | — |
 | 96 | 1 | Debug | — |
-| 97 | 1 | + Deck | — |
+| 97 | 4 | Add to print deck | — |
 | 98 | 1 | NO. | — |
 | 99 | 1 | 07 | — |
 | 100 | 5 | Bound what you cannot count | — |
@@ -113,7 +113,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 102 | 5 | Ages 10–15 · 35 min | — |
 | 103 | 1 | Model | — |
 | 104 | 1 | Explain | — |
-| 105 | 1 | + Deck | — |
+| 105 | 4 | Add to print deck | — |
 | 106 | 1 | NO. | — |
 | 107 | 1 | 08 | — |
 | 108 | 4 | Coordinate with limited information | — |
@@ -121,7 +121,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 110 | 5 | Ages 11–16 · 45 min | — |
 | 111 | 1 | Collaborate | — |
 | 112 | 1 | Debug | — |
-| 113 | 1 | + Deck | — |
+| 113 | 4 | Add to print deck | — |
 | 114 | 1 | CHALLENGE | — |
 | 115 | 3 | The one-sheet bridge | — |
 | 116 | 3 | Make structure visible | — |
@@ -184,34 +184,35 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 173 | 10 | Complete a challenge, then record what was made and observed. | — |
 | 174 | 3 | Choose a challenge | — |
 | 175 | 3 | Export portfolio JSON | — |
-| 176 | 3 | MAKE YOUR OWN | — |
-| 177 | 6 | Make a challenge for your family | — |
-| 178 | 10 | Add a task, limits, reflection prompts, and one review rubric. | — |
-| 179 | 2 | Challenge title | — |
-| 180 | 3 | Primary skill mode | — |
-| 181 | 1 | Build | — |
-| 182 | 1 | Explain | — |
-| 183 | 1 | Critique | — |
-| 184 | 1 | Model | — |
-| 185 | 1 | Debug | — |
-| 186 | 1 | Collaborate | — |
-| 187 | 2 | Age range | — |
-| 188 | 2 | 10–12 | — |
-| 189 | 2 | 13–16 | — |
-| 190 | 2 | 10–16 | — |
-| 191 | 1 | Minutes | — |
-| 192 | 5 | Build, explain, or critique task | — |
-| 193 | 9 | Name what to make and what evidence to keep. | — |
-| 194 | 5 | Material limits (one per line) | — |
-| 195 | 5 | Reflection prompts (one per line) | — |
-| 196 | 16 | I made this challenge or can share it under CC BY 4.0 (opens Creative Commons). | — |
-| 197 | 4 | Add to print deck | — |
-| 198 | 0 | ↗ | — |
-| 199 | 6 | Export or import a challenge deck | — |
-| 200 | 7 | Share a JSON file with another family. | — |
-| 201 | 7 | An import changes only this browser workspace. | — |
-| 202 | 6 | Export print deckImport a challenge deck | — |
-| 203 | 8 | 0 made here · 0 in your print deck | — |
+| 176 | 3 | Import portfolio JSON | — |
+| 177 | 3 | MAKE YOUR OWN | — |
+| 178 | 6 | Make a challenge for your family | — |
+| 179 | 10 | Add a task, limits, reflection prompts, and one review rubric. | — |
+| 180 | 2 | Challenge title | — |
+| 181 | 3 | Primary skill mode | — |
+| 182 | 1 | Build | — |
+| 183 | 1 | Explain | — |
+| 184 | 1 | Critique | — |
+| 185 | 1 | Model | — |
+| 186 | 1 | Debug | — |
+| 187 | 1 | Collaborate | — |
+| 188 | 2 | Age range | — |
+| 189 | 2 | 10–12 | — |
+| 190 | 2 | 13–16 | — |
+| 191 | 2 | 10–16 | — |
+| 192 | 1 | Minutes | — |
+| 193 | 5 | Build, explain, or critique task | — |
+| 194 | 9 | Name what to make and what evidence to keep. | — |
+| 195 | 5 | Material limits (one per line) | — |
+| 196 | 5 | Reflection prompts (one per line) | — |
+| 197 | 16 | I made this challenge or can share it under CC BY 4.0 (opens Creative Commons). | — |
+| 198 | 4 | Add to print deck | — |
+| 199 | 0 | ↗ | — |
+| 200 | 6 | Export or import a challenge deck | — |
+| 201 | 7 | Share a JSON file with another family. | — |
+| 202 | 7 | An import changes only this browser workspace. | — |
+| 203 | 6 | Export print deckImport a challenge deck | — |
+| 204 | 8 | 0 made here · 0 in your print deck | — |
 
 ## Terminology
 
