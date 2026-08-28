@@ -1,21 +1,21 @@
 [
   {
     "id": "demo-isolation",
-    "claim": "The one-click demo starts with four sample artifacts and never changes the real portfolio.",
+    "claim": "The one-click demo shows progress and two sample work records in the first mobile screen, with four records total, and never changes the real portfolio.",
     "where": "first-screen action, demo banner, README",
     "test": "npm run test:claims -- --grep @claim:demo-isolation",
-    "sandbox": "fresh browser; sentinel real state; mutate and reset demo; assert real bytes unchanged and demo key removed on exit"
+    "sandbox": "fresh 390×844 browser; assert progress and two named records intersect the first viewport; sentinel real state; mutate and reset demo; assert real bytes unchanged and demo key removed on exit"
   },
   {
     "id": "offline-reload",
-    "claim": "The challenge deck and local portfolio work offline after one visit.",
+    "claim": "The demo and real workspace work offline after one visit.",
     "where": "offline status, privacy page, README",
     "test": "npm run test:claims -- --grep @claim:offline-reload",
-    "sandbox": "fresh demo context; install service worker; disable network; reload and assert sample portfolio"
+    "sandbox": "fresh context; install service worker; reload demo offline, then save and reload a real work record offline"
   },
   {
     "id": "private-free-use",
-    "claim": "Normal free and demo use sends no data away and requires no account.",
+    "claim": "Free and demo use needs no account and sends no data to another site.",
     "where": "first-screen facts, privacy section, privacy page, README",
     "test": "npm run test:claims -- --grep @claim:private-free-use",
     "sandbox": "fresh demo context; intercept every request through filter, open, and reset flows; assert same-origin only"
@@ -29,10 +29,24 @@
   },
   {
     "id": "included-deck",
-    "claim": "The free deck has eight challenges across six skill modes, each with a four-row adult or peer rubric.",
+    "claim": "The free deck has eight challenges across six skill modes; each has materials, limits, reflection prompts, and a four-row rubric.",
     "where": "first screen, included strip, challenge deck, README",
     "test": "npm run test:claims -- --grep @claim:included-deck",
-    "sandbox": "fresh demo context; count cards, mode filters, and rendered rubric rows"
+    "sandbox": "fresh demo context; open all eight cards and assert materials, limits, reflection prompts, four rubric rows, and all six modes"
+  },
+  {
+    "id": "challenge-filters",
+    "claim": "The challenge deck filters by skill mode and age range.",
+    "where": "challenge deck controls",
+    "test": "npm run test:claims -- --grep @claim:challenge-filters",
+    "sandbox": "fresh demo context; select Model and ages 10–12; assert every shown card matches both filters and reset restores all eight"
+  },
+  {
+    "id": "work-records",
+    "claim": "A family can save a work record with evidence, an observation, and a next step in its local portfolio.",
+    "where": "challenge action, portfolio, README",
+    "test": "npm run test:claims -- --grep @claim:work-records",
+    "sandbox": "fresh real workspace; save a complete work record, reload, and assert every field and progress value"
   },
   {
     "id": "print-results",
@@ -43,10 +57,10 @@
   },
   {
     "id": "portfolio-export",
-    "claim": "A family can export its portfolio as JSON.",
+    "claim": "A family can export all saved work records as portfolio JSON.",
     "where": "portfolio action, README",
     "test": "npm run test:claims -- --grep @claim:portfolio-export",
-    "sandbox": "fresh demo context; download JSON and assert format plus all four sample artifacts"
+    "sandbox": "fresh demo context; download JSON and assert format plus all four sample work records"
   },
   {
     "id": "deck-export",
@@ -60,7 +74,7 @@
     "claim": "Challenge deck imports require and preserve the CC BY 4.0 reuse license.",
     "where": "challenge maker, terms, README",
     "test": "npm run test:claims -- --grep @claim:licensed-import",
-    "sandbox": "fresh demo context; reject a license-less fixture, then import the equivalent licensed fixture"
+    "sandbox": "fresh demo context; reject a license-less fixture, import the licensed fixture, and assert only the demo namespace changes"
   },
   {
     "id": "routing-metadata",

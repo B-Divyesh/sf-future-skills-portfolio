@@ -12,13 +12,21 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("@claim:demo-isolation sample work is ready and cannot change real work", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   const realValue = JSON.stringify({ artifacts: [], customChallenges: [], savedIds: ["explain-black-box"] });
   await page.evaluate(([key, value]) => localStorage.setItem(key, value), [REAL_KEY, realValue]);
   await page.reload();
 
   await expect(page.getByText("Demo — sample data, nothing is saved")).toBeVisible();
+  await expect(page.locator(".demo-progress")).toBeInViewport();
+  await expect(page.locator(".demo-records > li")).toHaveCount(2);
+  for (const record of await page.locator(".demo-records > li").all()) {
+    await expect(record).toBeInViewport();
+    await expect(record.locator("h2")).toBeVisible();
+    await expect(record.locator("p")).toHaveCount(2);
+  }
   await expect(page.locator(".artifact-list > li")).toHaveCount(4);
-  await expect(page.getByText("4 / 4 artifacts")).toBeVisible();
+  await expect(page.getByText("4 / 4 work records")).toBeVisible();
   await page.getByRole("button", { name: "Remove The one-sheet bridge from print deck" }).first().click();
   expect(await page.evaluate((key) => localStorage.getItem(key), REAL_KEY)).toBe(realValue);
   expect(await page.evaluate((key) => localStorage.getItem(key), DEMO_KEY)).not.toBeNull();
@@ -31,7 +39,7 @@ test("@claim:demo-isolation sample work is ready and cannot change real work", a
   expect(await page.evaluate((key) => localStorage.getItem(key), DEMO_KEY)).toBeNull();
 });
 
-test("@claim:offline-reload the demo reloads after the network is disabled", async ({ page, context }) => {
+test("@claim:offline-reload the demo and real workspace work after the network is disabled", async ({ page, context }) => {
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });
   await page.reload();
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
@@ -39,6 +47,21 @@ test("@claim:offline-reload the demo reloads after the network is disabled", asy
   await page.reload();
   await expect(page.getByText("Demo — sample data, nothing is saved")).toBeVisible();
   await expect(page.locator(".artifact-list > li")).toHaveCount(4);
+  await expect(page.getByText(/You’re offline/)).toBeVisible();
+
+  await context.setOffline(false);
+  await page.goto("/");
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  await context.setOffline(true);
+  await page.locator(".card-open", { hasText: "Explain a black box" }).click();
+  await page.getByRole("button", { name: "Save a work record" }).click();
+  await page.getByLabel("What did you make?").fill("Offline explanation notes");
+  await page.getByLabel("Evidence kept").fill("A rule, a diagram, and three test cases.");
+  await page.getByLabel("Concrete growth observation").fill("The final test ruled out the first explanation.");
+  await page.getByLabel("A useful next step").fill("Try a negative input.");
+  await page.getByRole("button", { name: "Save work record locally" }).click();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Offline explanation notes" })).toBeVisible();
   await expect(page.getByText(/You’re offline/)).toBeVisible();
 });
 
@@ -65,7 +88,49 @@ test("@claim:included-deck includes eight free challenges, six skill modes, and 
   for (const mode of ["Build", "Explain", "Critique", "Model", "Debug", "Collaborate"]) {
     await expect(page.getByRole("button", { name: `Show ${mode} challenges` })).toBeVisible();
   }
-  await expect(page.locator(".challenge-detail tbody tr")).toHaveCount(4);
+  for (let index = 0; index < 8; index += 1) {
+    await page.locator(".challenge-card .card-open").nth(index).click();
+    await expect(page.locator(".challenge-detail .detail-grid > div").nth(0).locator("li")).not.toHaveCount(0);
+    await expect(page.locator(".challenge-detail .detail-grid > div").nth(1).locator("li")).not.toHaveCount(0);
+    await expect(page.locator(".challenge-detail .reflection-list li")).not.toHaveCount(0);
+    await expect(page.locator(".challenge-detail tbody tr")).toHaveCount(4);
+  }
+});
+
+test("@claim:challenge-filters filters the deck by skill mode and age range", async ({ page }) => {
+  await page.getByRole("button", { name: "Show Model challenges" }).click();
+  await page.getByRole("button", { name: "Show challenges for ages 10–12" }).click();
+  const cards = page.locator(".challenge-card");
+  expect(await cards.count()).toBeGreaterThan(0);
+  for (const card of await cards.all()) {
+    await expect(card).toContainText("Model");
+    const text = await card.innerText();
+    const ages = text.match(/Ages (\d+)–(\d+)/);
+    expect(ages, text).not.toBeNull();
+    expect(Number(ages?.[1])).toBeLessThanOrEqual(12);
+    expect(Number(ages?.[2])).toBeGreaterThanOrEqual(10);
+  }
+  await page.getByRole("button", { name: "Show all challenges" }).click();
+  await page.getByRole("button", { name: "Show challenges for all ages" }).click();
+  await expect(cards).toHaveCount(8);
+});
+
+test("@claim:work-records saves a complete work record in the local portfolio", async ({ page }) => {
+  await page.getByRole("button", { name: "Start for real" }).click();
+  await page.locator(".card-open", { hasText: "Explain a black box" }).click();
+  await page.getByRole("button", { name: "Save a work record" }).click();
+  await page.getByLabel("What did you make?").fill("Two rule explanations");
+  await page.getByLabel("Evidence kept").fill("Eight pairs, a diagram, and two written rules.");
+  await page.getByLabel("Concrete growth observation").fill("One test case separated the two possible rules.");
+  await page.getByLabel("A useful next step").fill("Test both rules with a negative input.");
+  await page.getByRole("button", { name: "Save work record locally" }).click();
+  await page.reload();
+  await expect(page.getByText("1 / 4 work records")).toBeVisible();
+  const record = page.locator(".artifact-list > li", { hasText: "Two rule explanations" });
+  await expect(record).toContainText("One test case separated the two possible rules.");
+  await record.getByText("Evidence and next step").click();
+  await expect(record).toContainText("Eight pairs, a diagram, and two written rules.");
+  await expect(record).toContainText("Test both rules with a negative input.");
 });
 
 test("@claim:print-results prints one selected challenge or every challenge in the print deck", async ({ page }) => {
@@ -82,7 +147,7 @@ test("@claim:print-results prints one selected challenge or every challenge in t
   await expect(page.locator(".print-sheet")).toHaveCount(4);
 });
 
-test("@claim:portfolio-export exports all four sample artifacts as JSON", async ({ page }) => {
+test("@claim:portfolio-export exports all four sample work records as JSON", async ({ page }) => {
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export portfolio JSON" }).click();
   const download = await downloadPromise;
@@ -108,6 +173,9 @@ test("@claim:deck-export exports the selected challenge deck with reuse licenses
 });
 
 test("@claim:licensed-import accepts CC BY 4.0 decks and rejects files without that license", async ({ page }) => {
+  const realValue = JSON.stringify({ sentinel: "keep exactly" });
+  await page.evaluate(([key, value]) => localStorage.setItem(key, value), [REAL_KEY, realValue]);
+  const demoBefore = await page.evaluate((key) => localStorage.getItem(key), DEMO_KEY);
   const challenge = {
     id: "sample-import", title: "Check a map legend", kicker: "Explain symbols clearly", ageMin: 10, ageMax: 16, minutes: 30, modes: ["Explain"],
     task: "Make a small map legend, ask a partner to use it, and revise one unclear symbol.", materials: ["Paper"], limits: ["No photos"], reflection: ["What changed?"],
@@ -120,8 +188,12 @@ test("@claim:licensed-import accepts CC BY 4.0 decks and rejects files without t
   await page.locator("#deck-import").setInputFiles(file(false));
   await expect(page.locator("#toast")).toHaveText("Every imported challenge needs the supported CC BY 4.0 reuse license.");
   await expect(page.getByText("Check a map legend")).toHaveCount(0);
+  expect(await page.evaluate((key) => localStorage.getItem(key), DEMO_KEY)).toBe(demoBefore);
+  expect(await page.evaluate((key) => localStorage.getItem(key), REAL_KEY)).toBe(realValue);
   await page.locator("#deck-import").setInputFiles(file(true));
   await expect(page.getByText("Check a map legend").first()).toBeVisible();
+  expect(await page.evaluate((key) => localStorage.getItem(key), DEMO_KEY)).toContain("Check a map legend");
+  expect(await page.evaluate((key) => localStorage.getItem(key), REAL_KEY)).toBe(realValue);
 });
 
 test("@claim:routing-metadata real routes set titles, focus destinations, and a styled not-found state", async ({ page }) => {
@@ -132,12 +204,12 @@ test("@claim:routing-metadata real routes set titles, focus destinations, and a 
   await expect(page.locator(":focus")).toHaveText("How your work stays private");
   await page.goBack();
   await expect(page).toHaveTitle("Demo — Future Skills Portfolio");
-  await expect(page.locator(":focus")).toHaveText("Build a portfolio of math and computing work");
+  await expect(page.locator(":focus")).toHaveText("Inspect four completed work records");
   await page.goForward();
   await expect(page).toHaveTitle("Privacy — Future Skills Portfolio");
   await expect(page.locator(":focus")).toHaveText("How your work stays private");
   await page.goto("/?demo=1");
-  await page.getByRole("link", { name: "Browse free challenges" }).click();
+  await page.getByRole("link", { name: "Browse challenges" }).click();
   await expect(page.locator(":focus")).toHaveText("Choose a printable challenge");
   await page.goto("/terms");
   await expect(page).toHaveTitle("Terms — Future Skills Portfolio");
@@ -156,6 +228,10 @@ test("@claim:local-authoring saves a family challenge only inside the demo names
   await page.getByLabel(/I made this challenge/).check();
   await page.getByRole("button", { name: "Add to print deck" }).click();
   await expect(page.getByText("Map the quietest route").first()).toBeVisible();
+  await expect(page.locator(".challenge-detail .detail-grid > div").nth(0).locator("li")).not.toHaveCount(0);
+  await expect(page.locator(".challenge-detail .detail-grid > div").nth(1).locator("li")).toHaveCount(3);
+  await expect(page.locator(".challenge-detail .reflection-list li")).toHaveCount(3);
+  await expect(page.locator(".challenge-detail tbody tr")).toHaveCount(4);
   expect(await page.evaluate((key) => localStorage.getItem(key), REAL_KEY)).toBeNull();
   expect(await page.evaluate((key) => localStorage.getItem(key), DEMO_KEY)).toContain("Map the quietest route");
 });
@@ -171,6 +247,7 @@ test("@claim:static-build ships a framework-free local asset bundle within its s
   expect((await stat(`dist${jsPath}`)).size).toBeLessThanOrEqual(200_000);
   expect((await stat(`dist${cssPath}`)).size).toBeLessThanOrEqual(50_000);
   expect(packageJson.engines.node).toBe(">=20");
+  expect(packageJson.dependencies).toBeUndefined();
   expect(license).toContain("MIT License");
   expect(await page.locator('script[src^="http"], link[rel="stylesheet"][href^="http"]').count()).toBe(0);
   const results = await new AxeBuilder({ page }).analyze();

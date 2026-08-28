@@ -33,30 +33,33 @@ test("the first screen names the job, sample action, and three concrete facts", 
   await expect(page.getByRole("heading", { level: 1, name: "Build a portfolio of math and computing work" })).toBeVisible();
   await expect(page.getByText("For families guiding ages 10–16 through printable challenges, reflection, and human review.")).toBeVisible();
   await expect(page.getByRole("link", { name: "Try it with sample data" })).toBeVisible();
-  await expect(page.getByText("Opens a ready six-week example.")).toBeVisible();
+  await expect(page.getByText("Opens four completed work records.")).toBeVisible();
   for (const fact of ["8 challenges are free.", "Work stays in this browser.", "Print or export when ready."]) await expect(page.getByText(fact)).toBeVisible();
   await expect(page.getByRole("link", { name: /Buy|checkout/i })).toHaveCount(0);
   await expect(page.getByText("$19", { exact: false })).toHaveCount(0);
 });
 
-test("the demo is one click away and shows its isolated controls immediately", async ({ page }) => {
+test("the demo is one click away and shows sample work immediately", async ({ page }) => {
   await page.getByRole("link", { name: "Try it with sample data" }).click();
   await expect(page).toHaveURL(/\?demo=1$/);
   await expect(page.getByText("Demo — sample data, nothing is saved")).toBeVisible();
   await expect(page.getByRole("button", { name: "Reset demo" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Start for real" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Inspect four completed work records" })).toBeVisible();
+  await expect(page.locator(".demo-records > li")).toHaveCount(2);
   await expect(page.locator(".artifact-list > li")).toHaveCount(4);
 });
 
 test("the standard sections, legal links, ownership, and accessible action names are present", async ({ page }) => {
-  await expect(page.getByRole("heading", { name: "Turn a challenge into reviewable work" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Complete a challenge and review the work" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Your family controls the work" })).toBeVisible();
-  await expect(page.getByRole("contentinfo").getByText(/Built by Param Factory · polish-1/)).toBeVisible();
+  await expect(page.getByRole("contentinfo").getByText(/Built by Param Factory · polish-2/)).toBeVisible();
   await expect(page.getByRole("contentinfo").getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
   await expect(page.getByRole("contentinfo").getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/terms");
   await expect(page.getByRole("button", { name: "Open challenge: The one-sheet bridge" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Add The one-sheet bridge to print deck" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Show Build challenges" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "CC BY 4.0 (opens Creative Commons)" })).toHaveAttribute("href", "https://creativecommons.org/licenses/by/4.0/");
 });
 
 test("privacy, terms, demo, and not-found routes each pass an axe smoke test", async ({ page }) => {
@@ -68,17 +71,17 @@ test("privacy, terms, demo, and not-found routes each pass an axe smoke test", a
   }
 });
 
-test("a family can inspect a challenge and log reviewable evidence", async ({ page }) => {
+test("a family can inspect a challenge and save a work record", async ({ page }) => {
   await page.locator(".card-open", { hasText: "Explain a black box" }).click();
   await expect(page.locator(".challenge-detail").getByRole("heading", { name: "Explain a black box" })).toBeVisible();
-  await page.getByRole("button", { name: "Log an artifact" }).click();
+  await page.getByRole("button", { name: "Save a work record" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByLabel("What did you make?").fill("Two black-box explanations");
   await page.getByLabel("Evidence kept").fill("Eight input-output pairs and two written explanations.");
   await page.getByLabel("Concrete growth observation").fill("The second explanation used one counterexample to rule out an alternative rule.");
   await page.getByLabel("A useful next step").fill("Try a rule with two inputs.");
-  await page.getByRole("button", { name: "Save artifact locally" }).click();
-  await expect(page.getByText("1 / 4 artifacts")).toBeVisible();
+  await page.getByRole("button", { name: "Save work record locally" }).click();
+  await expect(page.getByText("1 / 4 work records")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Two black-box explanations" })).toBeVisible();
 });
 
@@ -145,23 +148,23 @@ test("an unlicensed deck is rejected instead of bypassing the reuse safeguard", 
   await expect(page.getByText("No license")).toHaveCount(0);
 });
 
-test("storage-denied artifact and shelf writes keep work in memory without false success", async ({ page }) => {
+test("storage-denied work record and deck writes keep work in memory without false success", async ({ page }) => {
   await page.locator(".card-open", { hasText: "Explain a black box" }).click();
-  await page.getByRole("button", { name: "Log an artifact" }).click();
+  await page.getByRole("button", { name: "Save a work record" }).click();
   await page.getByLabel("What did you make?").fill("Unsaved explanation");
   await page.getByLabel("Evidence kept").fill("A written rule and examples.");
   await page.getByLabel("Concrete growth observation").fill("The explanation named a test case.");
   await page.getByLabel("A useful next step").fill("Test another rule.");
   await page.evaluate(() => { Storage.prototype.setItem = () => { throw new DOMException("Full", "QuotaExceededError"); }; });
-  await page.getByRole("button", { name: "Save artifact locally" }).click();
+  await page.getByRole("button", { name: "Save work record locally" }).click();
   await expect(page.getByRole("heading", { name: "Unsaved explanation" })).toBeVisible();
   await expect(page.locator("#toast")).toHaveText("Your browser blocked local storage. Export your work before leaving.");
-  await expect(page.locator("#toast")).not.toHaveText("Artifact saved on this device.");
+  await expect(page.locator("#toast")).not.toHaveText("Work record saved on this device.");
   await page.locator("[data-action='toggle-save']").first().click();
   await expect(page.locator("#toast")).toHaveText("Your browser blocked local storage. Export your work before leaving.");
   await page.reload();
   await expect(page.getByRole("heading", { name: "Unsaved explanation" })).toHaveCount(0);
-  await expect(page.getByText("0 / 4 artifacts")).toBeVisible();
+  await expect(page.getByText("0 / 4 work records")).toBeVisible();
 });
 
 test("malformed stored members recover to a usable portfolio instead of a blank page", async ({ page }) => {

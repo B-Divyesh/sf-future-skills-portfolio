@@ -2,7 +2,7 @@
 
 A private, printable challenge deck for families supporting curious learners aged 10–16.
 
-Families collect reviewable work across six skill modes. The product does not predict careers or score children with AI.
+Families save short records after completing challenges across six skill modes.
 
 Live: <https://future-skills-portfolio.sociobot.in>
 
@@ -11,13 +11,13 @@ Sample demo: <https://future-skills-portfolio.sociobot.in/?demo=1>
 ## What is included
 
 - Eight free challenges with materials, limits, reflection prompts, and a four-row rubric
-- Local artifact records with a six-week goal of four artifacts across three skill modes
+- Local work records with evidence, an observation, and a next step
 - Print-ready individual challenges and family-selected decks
 - Local challenge creation plus JSON deck import and export
-- Offline use after the first production visit
+- Offline demo and real workspace use after one visit
 - A separate sample workspace that never reads or changes the real portfolio
 
-The site asks for no child account, profile, photo, analytics identifier, or cloud sync. Browser storage holds portfolio data. See the [privacy policy](https://future-skills-portfolio.sociobot.in/privacy).
+Free and demo use needs no account and sends no data to another site. Browser storage holds portfolio data. See the [privacy policy](https://future-skills-portfolio.sociobot.in/privacy).
 
 New Keepsake Deck purchases are not offered because the hosted checkout is unavailable.
 

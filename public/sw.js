@@ -1,4 +1,4 @@
-const CACHE = "future-skills-v4";
+const CACHE = "future-skills-v5";
 const SHELL = ["/", "/demo", "/privacy", "/terms", "/manifest.webmanifest", "/mark.svg", "/apple-touch-icon.png", "/assets/hero-ceramic-720.webp", "/assets/hero-ceramic.webp", "/assets/social-card.jpg"];
 
 self.addEventListener("install", (event) => {

@@ -13,7 +13,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 2 | 8 | Build a portfolio of math and computing work | — |
 | 3 | 13 | For families guiding ages 10–16 through printable challenges, reflection, and human review. | — |
 | 4 | 5 | Try it with sample data | — |
-| 5 | 5 | Opens a ready six-week example. | — |
+| 5 | 5 | Opens four completed work records. | — |
 | 6 | 3 | Browse free challenges | — |
 | 7 | 3 | Print selected challenge | — |
 | 8 | 4 | 8 challenges are free. | — |
@@ -29,7 +29,7 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 18 | 1 | 0 | — |
 | 19 | 2 | REQUIRED ACCOUNTS | — |
 | 20 | 3 | HOW IT WORKS | — |
-| 21 | 6 | Turn a challenge into reviewable work | — |
+| 21 | 7 | Complete a challenge and review the work | — |
 | 22 | 8 | Use the same short cycle for each activity. | — |
 | 23 | 1 | 01 | — |
 | 24 | 3 | Choose a challenge | — |
@@ -38,11 +38,11 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 27 | 3 | Make and review | — |
 | 28 | 10 | Keep the work, then use the adult or peer rubric. | — |
 | 29 | 1 | 03 | — |
-| 30 | 3 | Log an artifact | — |
+| 30 | 4 | Save a work record | — |
 | 31 | 9 | Record the evidence, one observation, and a next step. | — |
 | 32 | 2 | CHALLENGE DECK | — |
 | 33 | 4 | Choose a printable challenge | — |
-| 34 | 5 | Filter by skill or age. | — |
+| 34 | 7 | Choose a skill mode or age range. | — |
 | 35 | 8 | Each challenge includes materials, limits, reflection, and review. | — |
 | 36 | 2 | SKILL MODE | — |
 | 37 | 1 | All | — |
@@ -165,22 +165,22 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 154 | 5 | Names one difficulty or change. | — |
 | 155 | 7 | Explains how a revision improved the work. | — |
 | 156 | 9 | Names a specific next experiment and why it matters. | — |
-| 157 | 3 | Log an artifact | — |
+| 157 | 4 | Save a work record | — |
 | 158 | 4 | Add to print deck | — |
 | 159 | 3 | Print this challenge | — |
 | 160 | 3 | PRIVATE BY DESIGN | — |
 | 161 | 5 | Your family controls the work | — |
 | 162 | 10 | Portfolio notes stay in this browser unless you export them. | — |
-| 163 | 6 | No child account or public profile. | — |
-| 164 | 6 | No AI scoring or career predictions. | — |
+| 163 | 7 | Free and demo use needs no account. | — |
+| 164 | 10 | Free and demo use sends no data to another site. | — |
 | 165 | 4 | Read the privacy policy | — |
 | 166 | 4 | PORTFOLIO IN THIS BROWSER | — |
 | 167 | 6 | Track completed work in a portfolio | — |
-| 168 | 12 | A six-week goal is four artifacts across at least three skill modes. | — |
-| 169 | 3 | 0 / 4 artifacts | — |
+| 168 | 8 | Save a short record after each completed challenge. | — |
+| 169 | 4 | 0 / 4 work records | — |
 | 170 | 4 | 0 / 3 skill modes | — |
 | 171 | 4 | ⌂ Stored in this browser | — |
-| 172 | 3 | No artifacts yet | — |
+| 172 | 4 | No work records yet | — |
 | 173 | 10 | Complete a challenge, then record what was made and observed. | — |
 | 174 | 3 | Choose a challenge | — |
 | 175 | 3 | Export portfolio JSON | — |
@@ -204,12 +204,12 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | 193 | 9 | Name what to make and what evidence to keep. | — |
 | 194 | 5 | Material limits (one per line) | — |
 | 195 | 5 | Reflection prompts (one per line) | — |
-| 196 | 13 | I made this challenge or can share it under CC BY 4.0. | — |
+| 196 | 16 | I made this challenge or can share it under CC BY 4.0 (opens Creative Commons). | — |
 | 197 | 4 | Add to print deck | — |
 | 198 | 0 | ↗ | — |
 | 199 | 6 | Export or import a challenge deck | — |
 | 200 | 7 | Share a JSON file with another family. | — |
-| 201 | 5 | Imports stay in this browser. | — |
+| 201 | 7 | An import changes only this browser workspace. | — |
 | 202 | 6 | Export print deckImport a challenge deck | — |
 | 203 | 8 | 0 made here · 0 in your print deck | — |
 
@@ -219,6 +219,6 @@ Generated from the production-rendered home page at `http://127.0.0.1:4173/`. Se
 | --- | --- |
 | An activity | challenge |
 | A collection of challenges | deck |
-| One completed work record | artifact |
-| The collection of artifacts | portfolio |
+| One completed challenge note | work record |
+| The collection of work records | portfolio |
 | Build, Explain, Critique, Model, Debug, or Collaborate | skill mode |

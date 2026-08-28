@@ -6,7 +6,7 @@ Future Skills Portfolio should feel like a quiet worktable where evidence is sha
 
 - **World:** a pale, mineral workbench with porcelain slabs, translucent ice, pencil marks, and one hand-shaped cobalt object. Surfaces are matte, slightly irregular, and useful.
 - **Hierarchy:** generous open fields lead into dense, printable challenge sheets. Large editorial headings defer to practical labels, prompts, and evidence.
-- **Interaction grammar:** controls resemble stamped workshop labels. Selection appears as a cobalt inset line and a subtle lift; completed work earns a small clay “fired” mark. The product calls collections **shelves** and completed work **artifacts**.
+- **Interaction grammar:** controls resemble stamped workshop labels. Selection appears as a cobalt inset line and a subtle lift; completed work earns a small clay “fired” mark. The product calls challenge collections **decks** and saved completion notes **work records**.
 - **Responsive intent:** desktop shows the challenge shelf beside a compact portfolio summary. At 390px everything becomes one reading column, filters become a horizontal scroll, and bottom actions stay in normal flow so no content is hidden.
 
 ## Palette
