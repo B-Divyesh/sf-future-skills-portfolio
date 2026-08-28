@@ -1,30 +1,36 @@
 # Future Skills Portfolio
 
-Future Skills Portfolio is a private, printable challenge deck for parents and home-school educators supporting mathematically and computationally curious young people aged 10–16. Instead of predicting careers or asking an AI to score a child, it helps a family collect human-reviewable evidence across building, explaining, critiquing, modelling, debugging, and collaboration.
+A private, printable challenge deck for families supporting curious learners aged 10–16.
+
+Families collect reviewable work across six skill modes. The product does not predict careers or score children with AI.
 
 Live: <https://future-skills-portfolio.sociobot.in>
 
+Sample demo: <https://future-skills-portfolio.sociobot.in/?demo=1>
+
 ## What is included
 
-- Eight complete free challenges with material limits, reflection prompts, and a four-level adult/peer rubric
-- Local-only artifact records and a six-week “four artifacts across three modes” progress view
-- Print-ready individual sheets and family-selected decks
-- A local challenge maker plus JSON deck import/export
-- Offline shell caching after the first production visit
-- An optional $19 one-time Keepsake Deck with eight more curated challenges, unlocked through the Sociobot billing API
+- Eight free challenges with materials, limits, reflection prompts, and a four-row rubric
+- Local artifact records with a six-week goal of four artifacts across three skill modes
+- Print-ready individual challenges and family-selected decks
+- Local challenge creation plus JSON deck import and export
+- Offline use after the first production visit
+- A separate sample workspace that never reads or changes the real portfolio
 
-The app requests no child account, profile, photo, analytics identifier, or cloud sync. Browser storage holds the portfolio and optional license token. See [`/privacy`](https://future-skills-portfolio.sociobot.in/privacy) for the plain-language policy.
+The site asks for no child account, profile, photo, analytics identifier, or cloud sync. Browser storage holds portfolio data. See the [privacy policy](https://future-skills-portfolio.sociobot.in/privacy).
+
+New Keepsake Deck purchases are not offered because the hosted checkout is unavailable.
 
 ## Run locally
 
-Requires Node.js 20 or later.
+Use Node.js 20 or later.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Vite prints the local URL. The app is a vanilla TypeScript static site with no runtime framework and no third-party runtime CDN.
+Vite prints the local URL. The product uses vanilla TypeScript and local runtime assets.
 
 ## Test and build
 
@@ -34,14 +40,14 @@ npm run build
 npm run preview
 ```
 
-The exact production build command is `npm run build`. Output lands in `dist/`, with `dist/index.html` at its root. Azure Static Web Apps routing and security headers live in `public/staticwebapp.config.json` and are copied into the build.
+Run one public claim with `npm run test:claims -- --grep @claim:<id>`. Every command is listed in [`.factory/claims.json`](.factory/claims.json).
 
-License verification uses `https://api.sociobot.in/api/v1/products/future-skills-portfolio/verify`; checkout uses the matching hosted Sociobot product URL. No payment provider is embedded and no product ID is hardcoded.
+The production build is in `dist/`. Azure Static Web Apps configuration is in `public/staticwebapp.config.json`.
 
 ## Product and visual notes
 
-The research brief is represented in the build work order and the complete product-specific visual system, asset prompt, and provenance are in [`.factory/design.md`](.factory/design.md). Generated source artwork is kept in `assets/src/`; optimized WebP files ship from `public/assets/`.
+See [`.factory/design.md`](.factory/design.md) for the visual system, asset prompts, and provenance.
 
 ## License
 
-Application code and included first-party materials are provided under the [MIT License](LICENSE). Every shareable challenge deck—whether it includes a free sheet or a family-created challenge—carries a CC BY 4.0 reuse license; imports without that explicit license are rejected.
+Application code and included materials use the [MIT License](LICENSE). Exported challenges use CC BY 4.0. Imports without that license are rejected.

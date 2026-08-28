@@ -51,9 +51,9 @@ function isArtifact(value: unknown): value is PortfolioState["artifacts"][number
     && typeof artifact.createdAt === "string";
 }
 
-export function loadState(storage: Pick<Storage, "getItem"> = localStorage): PortfolioState {
+export function loadState(storage: Pick<Storage, "getItem"> = localStorage, key = STORAGE_KEY): PortfolioState {
   try {
-    const raw = storage.getItem(STORAGE_KEY);
+    const raw = storage.getItem(key);
     if (!raw) return structuredClone(EMPTY_STATE);
     const parsed = JSON.parse(raw) as Partial<PortfolioState>;
     return {
@@ -68,9 +68,9 @@ export function loadState(storage: Pick<Storage, "getItem"> = localStorage): Por
   }
 }
 
-export function saveState(state: PortfolioState, storage: Pick<Storage, "setItem"> = localStorage): boolean {
+export function saveState(state: PortfolioState, storage: Pick<Storage, "setItem"> = localStorage, key = STORAGE_KEY): boolean {
   try {
-    storage.setItem(STORAGE_KEY, JSON.stringify(state));
+    storage.setItem(key, JSON.stringify(state));
     return true;
   } catch {
     return false;

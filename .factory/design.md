@@ -67,6 +67,8 @@ Contrast is designed to meet WCAG AA: body text is ink or slate on ice/porcelain
 - **Date:** 2026-08-28
 - **License/provenance:** generated specifically for Future Skills Portfolio; original project asset, disclosed in the footer.
 
+The 1200×630 social card is a center crop of that original still. The 180px touch icon is a repository-authored raster rendering of `public/mark.svg`; neither introduces third-party material.
+
 ## Print treatment
 
 Printing is a first-class mode, not a screenshot. Navigation, hero imagery, filters, and purchase controls disappear; each selected challenge becomes a clean A4/Letter sheet with task, constraints, reflection prompts, and the complete adult/peer rubric. Ink-heavy fields become white with dark outlines, and page breaks keep cards intact.

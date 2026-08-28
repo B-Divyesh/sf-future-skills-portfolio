@@ -17,7 +17,7 @@ test("the home screen is semantic, quiet in the console, and has no serious axe 
   await expect(page).toHaveTitle(/Future Skills Portfolio/);
   await expect(page.locator("h1")).toHaveCount(1);
   await expect(page.locator("main")).toHaveCount(1);
-  await expect(page.getByRole("heading", { name: "Make evidence. Not predictions." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Build a portfolio of math and computing work" })).toBeVisible();
   const progress = page.locator("progress.progress-track");
   await expect(progress).toHaveCount(2);
   await expect(progress.nth(0)).toHaveAttribute("value", "0");
@@ -27,6 +27,45 @@ test("the home screen is semantic, quiet in the console, and has no serious axe 
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
   expect(errors).toEqual([]);
+});
+
+test("the first screen names the job, sample action, and three concrete facts", async ({ page }) => {
+  await expect(page.getByRole("heading", { level: 1, name: "Build a portfolio of math and computing work" })).toBeVisible();
+  await expect(page.getByText("For families guiding ages 10–16 through printable challenges, reflection, and human review.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Try it with sample data" })).toBeVisible();
+  await expect(page.getByText("Opens a ready six-week example.")).toBeVisible();
+  for (const fact of ["8 challenges are free.", "Work stays in this browser.", "Print or export when ready."]) await expect(page.getByText(fact)).toBeVisible();
+  await expect(page.getByRole("link", { name: /Buy|checkout/i })).toHaveCount(0);
+  await expect(page.getByText("$19", { exact: false })).toHaveCount(0);
+});
+
+test("the demo is one click away and shows its isolated controls immediately", async ({ page }) => {
+  await page.getByRole("link", { name: "Try it with sample data" }).click();
+  await expect(page).toHaveURL(/\?demo=1$/);
+  await expect(page.getByText("Demo — sample data, nothing is saved")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Reset demo" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start for real" })).toBeVisible();
+  await expect(page.locator(".artifact-list > li")).toHaveCount(4);
+});
+
+test("the standard sections, legal links, ownership, and accessible action names are present", async ({ page }) => {
+  await expect(page.getByRole("heading", { name: "Turn a challenge into reviewable work" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your family controls the work" })).toBeVisible();
+  await expect(page.getByRole("contentinfo").getByText(/Built by Param Factory · polish-1/)).toBeVisible();
+  await expect(page.getByRole("contentinfo").getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
+  await expect(page.getByRole("contentinfo").getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/terms");
+  await expect(page.getByRole("button", { name: "Open challenge: The one-sheet bridge" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Add The one-sheet bridge to print deck" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Show Build challenges" })).toBeVisible();
+});
+
+test("privacy, terms, demo, and not-found routes each pass an axe smoke test", async ({ page }) => {
+  for (const path of ["/privacy", "/terms", "/demo", "/not-a-real-page"]) {
+    await page.goto(path);
+    await expect(page.locator("h1")).toHaveCount(1);
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.filter((item) => ["serious", "critical"].includes(item.impact ?? "")), path).toEqual([]);
+  }
 });
 
 test("a family can inspect a challenge and log reviewable evidence", async ({ page }) => {
@@ -48,10 +87,10 @@ test("custom challenge creation stays local and requires a reuse license", async
   await page.getByLabel("Build, explain, or critique task").fill("Measure three possible walking routes and explain which one is quietest without recording any people.");
   await page.getByLabel(/Material limits/).fill("Use only a paper map\nTake no photos\nCollect five readings per route");
   await page.getByLabel(/Reflection prompts/).fill("What did quiet mean?\nWhich sample was least reliable?\nWhat would you test next?");
-  await page.getByLabel(/I created this challenge/).check();
-  await page.getByRole("button", { name: "Add to my shelf" }).click();
+  await page.getByLabel(/I made this challenge/).check();
+  await page.locator("#challenge-form").getByRole("button", { name: "Add to print deck" }).click();
   await expect(page.getByText("Map the quietest route").first()).toBeVisible();
-  await expect(page.locator("#toast")).toHaveText("Your challenge was added to the shelf.");
+  await expect(page.locator("#toast")).toHaveText("Your challenge was added to the print deck.");
   await expect(page.locator("#toast")).toHaveClass(/is-visible/);
   const saved = await page.evaluate(() => localStorage.getItem("future-skills-portfolio:v1"));
   expect(saved).toContain("Map the quietest route");
@@ -84,7 +123,7 @@ test("a valid imported deck stays local and confirms the successful import", asy
     buffer: Buffer.from(JSON.stringify(deck)),
   });
   await expect(page.getByText("Trace a friendly route").first()).toBeVisible();
-  await expect(page.locator("#toast")).toHaveText("1 challenge imported locally.");
+  await expect(page.locator("#toast")).toHaveText("1 challenge imported into this browser.");
   await expect(page.locator("#toast")).toHaveClass(/is-visible/);
   const saved = await page.evaluate(() => localStorage.getItem("future-skills-portfolio:v1"));
   expect(saved).toContain("Trace a friendly route");
@@ -131,15 +170,17 @@ test("malformed stored members recover to a usable portfolio instead of a blank 
   await page.evaluate(() => localStorage.setItem("future-skills-portfolio:v1", JSON.stringify({ artifacts: [], savedIds: [], customChallenges: [{}] })));
   await page.reload();
   await expect(page.locator("h1")).toHaveCount(1);
-  await expect(page.getByRole("heading", { name: "Make evidence. Not predictions." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Build a portfolio of math and computing work" })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
 test("legal routes render directly with one h1", async ({ page }) => {
   await page.goto("/privacy");
-  await expect(page.getByRole("heading", { level: 1, name: "Privacy, by default" })).toBeVisible();
+  await expect(page).toHaveTitle("Privacy — Future Skills Portfolio");
+  await expect(page.getByRole("heading", { level: 1, name: "How your work stays private" })).toBeVisible();
   await expect(page.locator("h1")).toHaveCount(1);
   await page.goto("/terms");
+  await expect(page).toHaveTitle("Terms — Future Skills Portfolio");
   await expect(page.getByRole("heading", { level: 1, name: "Terms of use" })).toBeVisible();
 });
 
@@ -153,7 +194,7 @@ test("390px layout reflows at 200% text size while rubric and filters scroll loc
   const filters = await page.locator(".chip-row").evaluateAll((rows) => rows.map((row) => ({ scroll: row.scrollWidth, client: row.clientWidth })));
   expect(filters.some((row) => row.scroll > row.client)).toBe(true);
   await page.getByRole("link", { name: "Choose a challenge" }).first().click();
-  await expect(page.getByRole("heading", { name: "Choose the next piece of evidence" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Choose a printable challenge" })).toBeVisible();
   await page.locator(".card-open", { hasText: "Explain a black box" }).click();
   const rubric = await page.locator(".challenge-detail .table-wrap").evaluate((element) => ({ scroll: element.scrollWidth, client: element.clientWidth }));
   expect(rubric.scroll).toBeGreaterThan(rubric.client);

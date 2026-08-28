@@ -1,5 +1,5 @@
-const CACHE = "future-skills-v3";
-const SHELL = ["/", "/privacy", "/terms", "/manifest.webmanifest", "/mark.svg", "/assets/hero-ceramic-720.webp", "/assets/hero-ceramic.webp"];
+const CACHE = "future-skills-v4";
+const SHELL = ["/", "/demo", "/privacy", "/terms", "/manifest.webmanifest", "/mark.svg", "/apple-touch-icon.png", "/assets/hero-ceramic-720.webp", "/assets/hero-ceramic.webp", "/assets/social-card.jpg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil((async () => {

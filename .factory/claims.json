@@ -1,0 +1,86 @@
+[
+  {
+    "id": "demo-isolation",
+    "claim": "The one-click demo starts with four sample artifacts and never changes the real portfolio.",
+    "where": "first-screen action, demo banner, README",
+    "test": "npm run test:claims -- --grep @claim:demo-isolation",
+    "sandbox": "fresh browser; sentinel real state; mutate and reset demo; assert real bytes unchanged and demo key removed on exit"
+  },
+  {
+    "id": "offline-reload",
+    "claim": "The challenge deck and local portfolio work offline after one visit.",
+    "where": "offline status, privacy page, README",
+    "test": "npm run test:claims -- --grep @claim:offline-reload",
+    "sandbox": "fresh demo context; install service worker; disable network; reload and assert sample portfolio"
+  },
+  {
+    "id": "private-free-use",
+    "claim": "Normal free and demo use sends no data away and requires no account.",
+    "where": "first-screen facts, privacy section, privacy page, README",
+    "test": "npm run test:claims -- --grep @claim:private-free-use",
+    "sandbox": "fresh demo context; intercept every request through filter, open, and reset flows; assert same-origin only"
+  },
+  {
+    "id": "checkout-disabled",
+    "claim": "No purchase action or price is shown while the hosted checkout is unavailable.",
+    "where": "landing page, privacy page, terms, README",
+    "test": "npm run test:claims -- --grep @claim:checkout-disabled",
+    "sandbox": "fresh demo context; leave for the real workspace and assert no checkout, purchase, price, or buy action"
+  },
+  {
+    "id": "included-deck",
+    "claim": "The free deck has eight challenges across six skill modes, each with a four-row adult or peer rubric.",
+    "where": "first screen, included strip, challenge deck, README",
+    "test": "npm run test:claims -- --grep @claim:included-deck",
+    "sandbox": "fresh demo context; count cards, mode filters, and rendered rubric rows"
+  },
+  {
+    "id": "print-results",
+    "claim": "A family can print the selected challenge or every challenge in its print deck.",
+    "where": "first-screen print action, challenge actions, README",
+    "test": "npm run test:claims -- --grep @claim:print-results",
+    "sandbox": "fresh real and demo workspaces; stub browser print dialog and assert exact printable sheet counts"
+  },
+  {
+    "id": "portfolio-export",
+    "claim": "A family can export its portfolio as JSON.",
+    "where": "portfolio action, README",
+    "test": "npm run test:claims -- --grep @claim:portfolio-export",
+    "sandbox": "fresh demo context; download JSON and assert format plus all four sample artifacts"
+  },
+  {
+    "id": "deck-export",
+    "claim": "A family can export a challenge deck as JSON with CC BY 4.0 reuse licenses.",
+    "where": "challenge maker, terms, README",
+    "test": "npm run test:claims -- --grep @claim:deck-export",
+    "sandbox": "fresh demo context; download selected deck and assert format, count, and every license"
+  },
+  {
+    "id": "licensed-import",
+    "claim": "Challenge deck imports require and preserve the CC BY 4.0 reuse license.",
+    "where": "challenge maker, terms, README",
+    "test": "npm run test:claims -- --grep @claim:licensed-import",
+    "sandbox": "fresh demo context; reject a license-less fixture, then import the equivalent licensed fixture"
+  },
+  {
+    "id": "routing-metadata",
+    "claim": "Demo, privacy, terms, and missing pages have real routes, accurate titles, and route focus.",
+    "where": "navigation and document metadata",
+    "test": "npm run test:claims -- --grep @claim:routing-metadata",
+    "sandbox": "fresh demo context; click, back, and direct-load routes; assert title, canonical, focus, and 404 content"
+  },
+  {
+    "id": "local-authoring",
+    "claim": "A family can make a challenge locally without changing real data during a demo.",
+    "where": "challenge maker, README",
+    "test": "npm run test:claims -- --grep @claim:local-authoring",
+    "sandbox": "fresh demo context; create a licensed challenge and compare real and demo storage namespaces"
+  },
+  {
+    "id": "static-build",
+    "claim": "The product is a static TypeScript site with local assets and initial JS and CSS within factory budgets.",
+    "where": "README and build output",
+    "test": "npm run test:claims -- --grep @claim:static-build",
+    "sandbox": "production dist from clean build; measure emitted JS/CSS, inspect external scripts/styles, and run axe"
+  }
+]
