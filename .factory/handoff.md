@@ -58,6 +58,24 @@ vulnerabilities):
 | Lighthouse mobile/local | PASS — Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.1 s, LCP 1.3 s, TBT 90 ms, CLS 0 |
 | Asset budgets | PASS — JS 46,023 B raw (<200 KB), CSS 21,490 B raw (<50 KB), mobile hero 23,704 B (<300 KB), no runtime webfonts |
 
+## Production deployment and verification
+
+Deployed `dist/` with `/opt/fleet/lib/deploy-static.sh` to Azure Static Web
+Apps on 2026-08-28 UTC. Azure deployment ID:
+`5c07baf8-1de9-4136-8c9d-3cfe3eb70a2a`. The live URL is
+<https://future-skills-portfolio.sociobot.in/>.
+
+| Live check | Result |
+| --- | --- |
+| Live `verify-url.sh` | PASS — 804 ms, title/lang/one h1/main/alt/named buttons present; zero console and page errors |
+| Deployment identity | PASS — SHA-256 of live `index.html`, hashed JS/CSS, `sw.js`, manifest, and both hero assets matched the final `dist/` (7/7) |
+| Live 390px + 200% text | PASS — `scrollWidth=390`, `clientWidth=390`; axe 0 violations |
+| Live offline/update | PASS — service worker controlled root scope and a forced-offline reload rendered the explicit offline state with no errors |
+| Live response policy | PASS — strict self-only CSP, HSTS, nosniff, strict-origin referrer policy, camera/microphone/geolocation denial; HTML `max-age=30, must-revalidate`; `sw.js`/manifest `no-cache, must-revalidate`; hashed JS/CSS immutable for one year |
+| Live privacy identity | PASS — free-use browser requests were same-origin only; no analytics, remote fonts, CDN scripts, or cloud portfolio writes |
+| License response | PASS — invalid-license endpoint returned `valid:false`, origin-specific CORS, and `Cache-Control: no-store` |
+| Lighthouse mobile/live | PASS — Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 0.9 s, LCP 1.1 s, TBT 50 ms, CLS 0 |
+
 ## Run and verify
 
 ```sh
@@ -69,8 +87,7 @@ VERIFY_NODE_MODULES="$PWD/node_modules" /opt/fleet/lib/verify-url.sh \
 ```
 
 Use `npm run preview -- --host 127.0.0.1 --port 4173` before the final local
-verification command. Production deployment and live identity/header checks
-are recorded after the Azure Static Web Apps upload.
+verification command.
 
 ## Known boundary
 
