@@ -129,13 +129,11 @@ function deckSection(): string {
 
 function portfolioSection(): string {
   const completedModes = new Set(state.artifacts.flatMap((artifact) => byId(artifact.challengeId)?.modes ?? []));
-  const artifactProgress = Math.min(state.artifacts.length / 4, 1);
-  const modeProgress = Math.min(completedModes.size / 3, 1);
   return `<section id="portfolio" class="section portfolio-section" aria-labelledby="portfolio-title">
     <div class="section-heading"><div><p class="eyebrow">Private on this device</p><h2 id="portfolio-title">A six-week evidence shelf</h2></div><p>Success is concrete: four artifacts in at least three modes, each with an adult’s observable growth note.</p></div>
     <div class="progress-plinth">
-      <div class="progress-copy"><p class="progress-label"><strong>${state.artifacts.length}</strong> / 4 artifacts</p><div class="progress-track" role="progressbar" aria-label="Artifacts completed" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${Math.min(state.artifacts.length, 4)}"><span style="width:${artifactProgress * 100}%"></span></div></div>
-      <div class="progress-copy"><p class="progress-label"><strong>${completedModes.size}</strong> / 3 skill modes</p><div class="progress-track" role="progressbar" aria-label="Skill modes covered" aria-valuemin="0" aria-valuemax="3" aria-valuenow="${Math.min(completedModes.size, 3)}"><span style="width:${modeProgress * 100}%"></span></div></div>
+      <div class="progress-copy"><p class="progress-label"><strong>${state.artifacts.length}</strong> / 4 artifacts</p><progress class="progress-track" aria-label="Artifacts completed" max="4" value="${Math.min(state.artifacts.length, 4)}">${state.artifacts.length} of 4 artifacts</progress></div>
+      <div class="progress-copy"><p class="progress-label"><strong>${completedModes.size}</strong> / 3 skill modes</p><progress class="progress-track" aria-label="Skill modes covered" max="3" value="${Math.min(completedModes.size, 3)}">${completedModes.size} of 3 skill modes</progress></div>
       <p class="privacy-note"><span aria-hidden="true">⌂</span> Stored locally. No account.</p>
     </div>
     ${state.artifacts.length ? `<ol class="artifact-list">${state.artifacts.map((artifact) => {
@@ -180,10 +178,13 @@ function render(): void {
 
 function persist(message: string): void {
   if (!saveState(state)) {
-    toast("Your browser blocked local storage. Export your work before leaving.", true);
+    requestAnimationFrame(() => toast("Your browser blocked local storage. Export your work before leaving.", true));
     return;
   }
-  toast(message);
+  // Callers often re-render immediately after saving. Queue feedback so the
+  // newly rendered toast node, rather than the node about to be replaced,
+  // receives the message.
+  requestAnimationFrame(() => toast(message));
 }
 
 function toast(message: string, error = false): void {

@@ -10,11 +10,19 @@ test.beforeEach(async ({ page }) => {
 test("the home screen is semantic, quiet in the console, and has no serious axe findings", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  // The preview server mirrors the deployed Azure CSP. Reload after installing
+  // the listener so a CSP violation on first paint cannot be missed.
+  await page.reload();
 
   await expect(page).toHaveTitle(/Future Skills Portfolio/);
   await expect(page.locator("h1")).toHaveCount(1);
   await expect(page.locator("main")).toHaveCount(1);
   await expect(page.getByRole("heading", { name: "Make evidence. Not predictions." })).toBeVisible();
+  const progress = page.locator("progress.progress-track");
+  await expect(progress).toHaveCount(2);
+  await expect(progress.nth(0)).toHaveAttribute("value", "0");
+  await expect(progress.nth(1)).toHaveAttribute("value", "0");
+  expect(await progress.evaluateAll((elements) => elements.every((element) => !element.hasAttribute("style")))).toBe(true);
 
   const results = await new AxeBuilder({ page }).analyze();
   const highImpact = results.violations.filter((violation) => violation.impact === "serious" || violation.impact === "critical");
@@ -44,8 +52,42 @@ test("custom challenge creation stays local and requires a reuse license", async
   await page.getByLabel(/I created this challenge/).check();
   await page.getByRole("button", { name: "Add to my shelf" }).click();
   await expect(page.getByText("Map the quietest route").first()).toBeVisible();
+  await expect(page.locator("#toast")).toHaveText("Your challenge was added to the shelf.");
+  await expect(page.locator("#toast")).toHaveClass(/is-visible/);
   const saved = await page.evaluate(() => localStorage.getItem("future-skills-portfolio:v1"));
   expect(saved).toContain("Map the quietest route");
+});
+
+test("a valid imported deck stays local and confirms the successful import", async ({ page }) => {
+  const deck = {
+    format: "future-skills-deck",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    challenges: [{
+      id: "route-notes",
+      title: "Trace a friendly route",
+      kicker: "A shared observation challenge",
+      ageMin: 10,
+      ageMax: 16,
+      minutes: 30,
+      modes: ["Explain"],
+      task: "Compare two routes, then explain the clues that made one route easier to follow.",
+      materials: ["Paper", "Pencil"],
+      limits: ["No photos", "Use two routes", "Keep one observation per route"],
+      reflection: ["Which clue mattered?", "What was ambiguous?", "What would you revise?"],
+      rubric: [{ criterion: "Evidence", emerging: "A note", growing: "Two notes", strong: "Compared notes", transferable: "Explained trade-offs" }],
+    }],
+  };
+  await page.locator("#deck-import").setInputFiles({
+    name: "future-skills-deck.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(deck)),
+  });
+  await expect(page.getByText("Trace a friendly route").first()).toBeVisible();
+  await expect(page.locator("#toast")).toHaveText("1 challenge imported locally.");
+  await expect(page.locator("#toast")).toHaveClass(/is-visible/);
+  const saved = await page.evaluate(() => localStorage.getItem("future-skills-portfolio:v1"));
+  expect(saved).toContain("Trace a friendly route");
 });
 
 test("legal routes render directly with one h1", async ({ page }) => {

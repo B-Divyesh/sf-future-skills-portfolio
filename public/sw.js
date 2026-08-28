@@ -1,4 +1,4 @@
-const CACHE = "future-skills-v2";
+const CACHE = "future-skills-v3";
 const SHELL = ["/", "/privacy", "/terms", "/manifest.webmanifest", "/mark.svg", "/assets/hero-ceramic-720.webp", "/assets/hero-ceramic.webp"];
 
 self.addEventListener("install", (event) => {
@@ -20,9 +20,12 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET" || new URL(event.request.url).origin !== location.origin) return;
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
+    // Ignore development-server Vary headers. The request URL still has to
+    // match, and production assets are content-hashed, so this remains a
+    // safe cache key while making the offline shell work consistently.
+    caches.match(event.request, { ignoreVary: true }).then((cached) => cached || fetch(event.request).then((response) => {
       if (response.ok) caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));
       return response;
-    }).catch(() => caches.match("/")))
+    }).catch(() => caches.match("/", { ignoreVary: true })))
   );
 });
