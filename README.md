@@ -44,4 +44,4 @@ The research brief is represented in the build work order and the complete produ
 
 ## License
 
-Application code and included first-party materials are provided under the [MIT License](LICENSE). Family-created challenges are exported under CC BY 4.0 when the creator confirms they have permission to do so.
+Application code and included first-party materials are provided under the [MIT License](LICENSE). Every shareable challenge deck—whether it includes a free sheet or a family-created challenge—carries a CC BY 4.0 reuse license; imports without that explicit license are rejected.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { challenges, freeChallenges } from "./data";
-import { loadState, makeDeck, parseDeck, saveState, uniqueById } from "./storage";
+import { loadState, makeDeck, parseDeck, REUSE_LICENSE, saveState, uniqueById } from "./storage";
 
 class MemoryStorage {
   value: string | null = null;
@@ -26,6 +26,12 @@ describe("local portfolio storage", () => {
     storage.value = "not json";
     expect(loadState(storage).artifacts).toEqual([]);
   });
+
+  it("filters malformed stored members so a bad record cannot blank the app", () => {
+    const storage = new MemoryStorage();
+    storage.value = JSON.stringify({ artifacts: [], savedIds: ["paper-bridge", 3], customChallenges: [{}] });
+    expect(loadState(storage)).toEqual({ artifacts: [], customChallenges: [], savedIds: ["paper-bridge"] });
+  });
 });
 
 describe("shareable challenge decks", () => {
@@ -40,6 +46,19 @@ describe("shareable challenge decks", () => {
 
   it("rejects malformed challenge data", () => {
     expect(() => parseDeck(JSON.stringify({ format: "future-skills-deck", version: 1, challenges: [{ id: "bad-id", title: "Incomplete", task: "No supporting fields" }] }))).toThrow("incomplete");
+  });
+
+  it("rejects an imported challenge without the required reuse license", () => {
+    const unlicensed = { ...makeDeck(freeChallenges.slice(0, 1)), challenges: [{ ...freeChallenges[0], license: undefined }] };
+    expect(() => parseDeck(JSON.stringify(unlicensed))).toThrow("supported CC BY 4.0 reuse license");
+  });
+
+  it("exports a clear CC BY 4.0 attribution for every challenge", () => {
+    expect(makeDeck(freeChallenges.slice(0, 1)).challenges[0]?.license).toBe(REUSE_LICENSE);
+  });
+
+  it("will not re-export an unlicensed family challenge", () => {
+    expect(() => makeDeck([{ ...freeChallenges[0]!, custom: true, license: undefined }])).toThrow("supported CC BY 4.0 reuse license");
   });
 
   it("deduplicates imported challenges by id", () => {

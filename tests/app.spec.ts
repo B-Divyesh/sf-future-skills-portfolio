@@ -25,8 +25,7 @@ test("the home screen is semantic, quiet in the console, and has no serious axe 
   expect(await progress.evaluateAll((elements) => elements.every((element) => !element.hasAttribute("style")))).toBe(true);
 
   const results = await new AxeBuilder({ page }).analyze();
-  const highImpact = results.violations.filter((violation) => violation.impact === "serious" || violation.impact === "critical");
-  expect(highImpact).toEqual([]);
+  expect(results.violations).toEqual([]);
   expect(errors).toEqual([]);
 });
 
@@ -76,6 +75,7 @@ test("a valid imported deck stays local and confirms the successful import", asy
       limits: ["No photos", "Use two routes", "Keep one observation per route"],
       reflection: ["Which clue mattered?", "What was ambiguous?", "What would you revise?"],
       rubric: [{ criterion: "Evidence", emerging: "A note", growing: "Two notes", strong: "Compared notes", transferable: "Explained trade-offs" }],
+      license: "CC BY 4.0",
     }],
   };
   await page.locator("#deck-import").setInputFiles({
@@ -90,6 +90,51 @@ test("a valid imported deck stays local and confirms the successful import", asy
   expect(saved).toContain("Trace a friendly route");
 });
 
+test("an unlicensed deck is rejected instead of bypassing the reuse safeguard", async ({ page }) => {
+  const deck = {
+    format: "future-skills-deck",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    challenges: [{
+      id: "unlicensed-route", title: "No license", kicker: "Should not import", ageMin: 10, ageMax: 16, minutes: 30, modes: ["Explain"],
+      task: "Compare two routes, then explain the clues that made one route easier to follow.", materials: ["Paper"], limits: ["No photos"], reflection: ["Which clue mattered?"],
+      rubric: [{ criterion: "Evidence", emerging: "A note", growing: "Two notes", strong: "Compared notes", transferable: "Explained trade-offs" }],
+    }],
+  };
+  await page.locator("#deck-import").setInputFiles({ name: "unlicensed.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(deck)) });
+  await expect(page.locator("#toast")).toHaveText("Every imported challenge needs the supported CC BY 4.0 reuse license.");
+  await expect(page.getByText("No license")).toHaveCount(0);
+});
+
+test("storage-denied artifact and shelf writes keep work in memory without false success", async ({ page }) => {
+  await page.locator(".card-open", { hasText: "Explain a black box" }).click();
+  await page.getByRole("button", { name: "Log an artifact" }).click();
+  await page.getByLabel("What did you make?").fill("Unsaved explanation");
+  await page.getByLabel("Evidence kept").fill("A written rule and examples.");
+  await page.getByLabel("Concrete growth observation").fill("The explanation named a test case.");
+  await page.getByLabel("A useful next step").fill("Test another rule.");
+  await page.evaluate(() => { Storage.prototype.setItem = () => { throw new DOMException("Full", "QuotaExceededError"); }; });
+  await page.getByRole("button", { name: "Save artifact locally" }).click();
+  await expect(page.getByRole("heading", { name: "Unsaved explanation" })).toBeVisible();
+  await expect(page.locator("#toast")).toHaveText("Your browser blocked local storage. Export your work before leaving.");
+  await expect(page.locator("#toast")).not.toHaveText("Artifact saved on this device.");
+  await page.locator("[data-action='toggle-save']").first().click();
+  await expect(page.locator("#toast")).toHaveText("Your browser blocked local storage. Export your work before leaving.");
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Unsaved explanation" })).toHaveCount(0);
+  await expect(page.getByText("0 / 4 artifacts")).toBeVisible();
+});
+
+test("malformed stored members recover to a usable portfolio instead of a blank page", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.evaluate(() => localStorage.setItem("future-skills-portfolio:v1", JSON.stringify({ artifacts: [], savedIds: [], customChallenges: [{}] })));
+  await page.reload();
+  await expect(page.locator("h1")).toHaveCount(1);
+  await expect(page.getByRole("heading", { name: "Make evidence. Not predictions." })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test("legal routes render directly with one h1", async ({ page }) => {
   await page.goto("/privacy");
   await expect(page.getByRole("heading", { level: 1, name: "Privacy, by default" })).toBeVisible();
@@ -98,9 +143,20 @@ test("legal routes render directly with one h1", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "Terms of use" })).toBeVisible();
 });
 
-test("390px layout does not overflow horizontally", async ({ page }) => {
+test("390px layout reflows at 200% text size while rubric and filters scroll locally", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
   const dimensions = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
   expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client + 1);
+  const bounds = await page.evaluate(() => [".hero", ".filters"].map((selector) => ({ selector, right: document.querySelector(selector)?.getBoundingClientRect().right ?? 0, client: document.documentElement.clientWidth })));
+  expect(bounds.every((item) => item.right <= item.client + 1)).toBe(true);
+  const filters = await page.locator(".chip-row").evaluateAll((rows) => rows.map((row) => ({ scroll: row.scrollWidth, client: row.clientWidth })));
+  expect(filters.some((row) => row.scroll > row.client)).toBe(true);
   await page.getByRole("link", { name: "Choose a challenge" }).first().click();
   await expect(page.getByRole("heading", { name: "Choose the next piece of evidence" })).toBeVisible();
+  await page.locator(".card-open", { hasText: "Explain a black box" }).click();
+  const rubric = await page.locator(".challenge-detail .table-wrap").evaluate((element) => ({ scroll: element.scrollWidth, client: element.clientWidth }));
+  expect(rubric.scroll).toBeGreaterThan(rubric.client);
+  const afterDetail = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
+  expect(afterDetail.scroll).toBeLessThanOrEqual(afterDetail.client + 1);
 });

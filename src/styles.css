@@ -23,6 +23,7 @@
 }
 
 * { box-sizing: border-box; }
+html, body { max-width: 100%; overflow-x: clip; }
 html { scroll-behavior: smooth; scroll-padding-top: 84px; }
 body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--ice); font-size: 16px; line-height: 1.55; }
 body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .16; background-image: radial-gradient(circle at 1px 1px, #5e7770 0.7px, transparent .8px); background-size: 16px 16px; mask-image: linear-gradient(to bottom, black, transparent 55%); }
@@ -236,6 +237,7 @@ tbody th { width: 16%; color: var(--cobalt-deep); }
   .wordmark { font-size: .7rem; }
   .hero { gap: 44px; padding: 56px 20px 72px; }
   h1 { font-size: clamp(3.35rem, 16vw, 5rem); }
+  h1, h2, h3, .hero-copy, .section-heading, .filter-group, .chip-row { min-width: 0; overflow-wrap: anywhere; }
   .hero-actions .button { width: 100%; }
   .hero-art figcaption { position: static; margin-top: 10px; }
   .proof-strip { margin: 0 16px; }
@@ -247,7 +249,7 @@ tbody th { width: 16%; color: var(--cobalt-deep); }
   .filters { display: block; }
   .filter-group { display: block; margin: 12px 0; }
   .filter-group > span { display: block; margin-bottom: 8px; }
-  .chip-row { flex-wrap: nowrap; padding: 3px 3px 8px; overflow-x: auto; scrollbar-width: thin; }
+  .chip-row { max-width: 100%; flex-wrap: nowrap; padding: 3px 3px 8px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
   .filter-chip { flex: 0 0 auto; }
   .challenge-list { grid-template-columns: 1fr; }
   .challenge-detail { padding: 26px 18px; border-radius: 2px 18px 2px 2px; }

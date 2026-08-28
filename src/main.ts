@@ -1,7 +1,7 @@
 import "./styles.css";
 import { checkoutUrl, captureLicense, clearLicense, hasOptimisticUnlock, storeLicense, verifyLicense } from "./billing";
 import { challenges, freeChallenges } from "./data";
-import { downloadJson, loadState, makeDeck, parseDeck, saveState, uniqueById } from "./storage";
+import { downloadJson, loadState, makeDeck, parseDeck, REUSE_LICENSE, saveState, uniqueById } from "./storage";
 import { modes, type Artifact, type Challenge, type SkillMode } from "./types";
 
 const app = document.querySelector<HTMLDivElement>("#app") as HTMLDivElement;
@@ -61,7 +61,7 @@ function legalPage(kind: "privacy" | "terms"): string {
     <h2>Contact</h2><p>For privacy questions, email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a>.</p><p class="policy-date">Effective 28 August 2026</p>`;
   const terms = `<p class="eyebrow">Use terms</p><h1>Terms of use</h1><p class="lede">A durable family learning tool, offered without career predictions or automated judgments.</p>
     <h2>Using the challenges</h2><p>You may print and adapt the included challenges for personal, family, co-op, and classroom use. Adult supervision and sensible material choices remain your responsibility. The rubrics support conversation; they are not standardized assessments or claims about future employability.</p>
-    <h2>Your challenges</h2><p>Custom challenges stay on your device. To create one, you confirm that you have the right to share it under the Creative Commons Attribution 4.0 license. Exporting a deck does not send it to us; you decide who receives the file.</p>
+    <h2>Your challenges</h2><p>Custom challenges stay on your device. To create one, you confirm that you have the right to share it under the Creative Commons Attribution 4.0 license. Every challenge deck export carries that reuse license, including the included free sheets. Exporting a deck does not send it to us; you decide who receives the file.</p>
     <h2>Keepsake Deck purchase</h2><p>The optional Keepsake Deck is a $19 USD one-time purchase that unlocks eight additional curated challenge sheets in this browser. Sociobot/Dodo is the merchant of record. Checkout, receipts, taxes, and refunds are handled there. A refund revokes the license automatically. Accessibility, safety information, and portfolio export remain free.</p>
     <h2>Availability and warranty</h2><p>The free materials can be downloaded and used offline. Online license verification may occasionally be unavailable; a recently verified license continues optimistically. The product is provided “as is” without a promise of a particular educational or career outcome.</p>
     <h2>Contact</h2><p>For purchase or terms questions, email <a href="mailto:support@sociobot.in">support@sociobot.in</a>.</p><p class="policy-date">Effective 28 August 2026</p>`;
@@ -90,7 +90,7 @@ function rubricTable(challenge: Challenge, inputs = false): string {
 
 function challengeDetail(challenge: Challenge): string {
   if (!isAvailable(challenge)) {
-    return `<aside class="challenge-detail locked-detail" aria-labelledby="detail-title"><span class="slab-icon" aria-hidden="true">◇</span><p class="eyebrow">Keepsake challenge</p><h3 id="detail-title">${escapeHtml(challenge.title)}</h3><p>${escapeHtml(challenge.kicker)}. This challenge is part of the extended eight-sheet Keepsake collection.</p><a class="button primary" href="#keepsake">See the one-time unlock</a></aside>`;
+    return `<div class="challenge-detail locked-detail" aria-labelledby="detail-title"><span class="slab-icon" aria-hidden="true">◇</span><p class="eyebrow">Keepsake challenge</p><h3 id="detail-title">${escapeHtml(challenge.title)}</h3><p>${escapeHtml(challenge.kicker)}. This challenge is part of the extended eight-sheet Keepsake collection.</p><a class="button primary" href="#keepsake">See the one-time unlock</a></div>`;
   }
   const saved = state.savedIds.includes(challenge.id);
   return `<article class="challenge-detail" aria-labelledby="detail-title">
@@ -148,7 +148,7 @@ function makeSection(): string {
   return `<section id="make" class="section make-section" aria-labelledby="make-title">
     <div class="section-heading"><div><p class="eyebrow">Adapt the format</p><h2 id="make-title">Shape a challenge of your own</h2></div><p>Keep the structure: a task, real limits, reflection, and review. Your challenge stays local until you export it.</p></div>
     <div class="maker-layout"><form id="challenge-form" class="maker-form"><div class="field wide"><label for="custom-title">Challenge title</label><input id="custom-title" name="title" required maxlength="70" autocomplete="off"></div><div class="field"><label for="custom-mode">Primary mode</label><select id="custom-mode" name="mode">${modes.map((mode) => `<option>${mode}</option>`).join("")}</select></div><div class="field"><label for="custom-age">Age band</label><select id="custom-age" name="age"><option value="10-12">10–12</option><option value="13-16">13–16</option><option value="10-16">10–16</option></select></div><div class="field"><label for="custom-time">Minutes</label><input id="custom-time" name="minutes" type="number" min="15" max="240" step="5" value="45" required></div><div class="field wide"><label for="custom-task">Build, explain, or critique task</label><textarea id="custom-task" name="task" rows="4" required maxlength="600" aria-describedby="task-hint"></textarea><small id="task-hint">Write what someone should make and what evidence they should keep.</small></div><div class="field wide"><label for="custom-limits">Material limits <span>(one per line)</span></label><textarea id="custom-limits" name="limits" rows="3" required maxlength="400"></textarea></div><div class="field wide"><label for="custom-reflection">Reflection prompts <span>(one per line)</span></label><textarea id="custom-reflection" name="reflection" rows="3" required maxlength="400"></textarea></div><label class="check-row wide"><input type="checkbox" name="license" required><span>I created this challenge or have permission to share it under <a href="https://creativecommons.org/licenses/by/4.0/" rel="noreferrer">CC BY 4.0</a>.</span></label><div class="wide"><button class="button primary" type="submit">Add to my shelf</button></div></form>
-    <aside class="share-panel"><span class="slab-icon" aria-hidden="true">↗</span><h3>Pass a deck hand to hand</h3><p>Export a small JSON file for another family. Importing adds the challenges to this browser; nothing is uploaded.</p><button class="button secondary" type="button" data-action="export-deck">Export my shelf</button><label class="button text-upload">Import a deck<input id="deck-import" type="file" accept="application/json,.json"></label><p class="microcopy">${state.customChallenges.length} made here · ${state.savedIds.length} on your print shelf</p></aside></div>
+    <div class="share-panel"><span class="slab-icon" aria-hidden="true">↗</span><h3>Pass a deck hand to hand</h3><p>Export a small JSON file for another family. Importing adds the challenges to this browser; nothing is uploaded.</p><button class="button secondary" type="button" data-action="export-deck">Export my shelf</button><label class="button text-upload">Import a deck<input id="deck-import" type="file" accept="application/json,.json"></label><p class="microcopy">${state.customChallenges.length} made here · ${state.savedIds.length} on your print shelf</p></div></div>
   </section>`;
 }
 
@@ -176,15 +176,16 @@ function render(): void {
   bindEvents();
 }
 
-function persist(message: string): void {
+function persist(message: string): boolean {
   if (!saveState(state)) {
     requestAnimationFrame(() => toast("Your browser blocked local storage. Export your work before leaving.", true));
-    return;
+    return false;
   }
   // Callers often re-render immediately after saving. Queue feedback so the
   // newly rendered toast node, rather than the node about to be replaced,
   // receives the message.
   requestAnimationFrame(() => toast(message));
+  return true;
 }
 
 function toast(message: string, error = false): void {
@@ -247,10 +248,10 @@ function bindDialogEvents(): void {
     challenge.rubric.forEach((row, index) => scores[row.criterion] = Number(data.get(`score-${index}`) ?? 3));
     const artifact: Artifact = { id: crypto.randomUUID(), challengeId: challenge.id, title: String(data.get("title")), completedOn: String(data.get("date")), evidence: String(data.get("evidence")), observation: String(data.get("observation")), nextStep: String(data.get("next")), reviewer: String(data.get("reviewer")) as Artifact["reviewer"], scores, createdAt: new Date().toISOString() };
     state.artifacts.unshift(artifact);
-    saveState(state);
+    persist("Artifact saved on this device.");
     closeDialog();
     render();
-    requestAnimationFrame(() => { document.querySelector("#portfolio")?.scrollIntoView({ behavior: "smooth" }); toast("Artifact saved on this device."); });
+    requestAnimationFrame(() => document.querySelector("#portfolio")?.scrollIntoView({ behavior: "smooth" }));
   });
 }
 
@@ -262,7 +263,7 @@ function bindEvents(): void {
     if (action === "select") { selectedId = id; render(); requestAnimationFrame(() => document.querySelector(".challenge-detail")?.scrollIntoView({ block: "nearest" })); }
     if (action === "toggle-save") {
       state.savedIds = state.savedIds.includes(id) ? state.savedIds.filter((saved) => saved !== id) : [...state.savedIds, id];
-      const added = state.savedIds.includes(id); saveState(state); render(); requestAnimationFrame(() => toast(added ? "Added to your print shelf." : "Removed from your print shelf."));
+      const added = state.savedIds.includes(id); persist(added ? "Added to your print shelf." : "Removed from your print shelf."); render();
     }
     if (action === "filter-mode") { modeFilter = target.dataset.value as typeof modeFilter; render(); }
     if (action === "filter-age") { ageFilter = target.dataset.value as typeof ageFilter; render(); }
@@ -292,7 +293,7 @@ function bindEvents(): void {
     const age = String(data.get("age")).split("-").map(Number);
     const mode = String(data.get("mode")) as SkillMode;
     const title = String(data.get("title")).trim();
-    const challenge: Challenge = { id: `custom-${crypto.randomUUID()}`, title, kicker: "A family-made challenge", ageMin: age[0] ?? 10, ageMax: age[1] ?? 16, minutes: Number(data.get("minutes")), modes: [mode], task: String(data.get("task")).trim(), materials: ["Choose only the materials named in your task"], limits: lines(data.get("limits")), reflection: lines(data.get("reflection")), rubric: customRubric(mode), custom: true, license: "CC BY 4.0" };
+    const challenge: Challenge = { id: `custom-${crypto.randomUUID()}`, title, kicker: "A family-made challenge", ageMin: age[0] ?? 10, ageMax: age[1] ?? 16, minutes: Number(data.get("minutes")), modes: [mode], task: String(data.get("task")).trim(), materials: ["Choose only the materials named in your task"], limits: lines(data.get("limits")), reflection: lines(data.get("reflection")), rubric: customRubric(mode), custom: true, license: REUSE_LICENSE };
     state.customChallenges.push(challenge); state.savedIds.push(challenge.id); selectedId = challenge.id; persist("Your challenge was added to the shelf."); form.reset(); render(); requestAnimationFrame(() => document.querySelector("#deck")?.scrollIntoView({ behavior: "smooth" }));
   });
 
