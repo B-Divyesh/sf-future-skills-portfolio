@@ -1,0 +1,10 @@
+{
+  "name": "Future Skills Portfolio",
+  "short_name": "Skills Portfolio",
+  "description": "Printable challenges and a private evidence portfolio for ages 10–16.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3f7f5",
+  "theme_color": "#f3f7f5",
+  "icons": [{ "src": "/mark.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
