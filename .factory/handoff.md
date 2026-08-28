@@ -1,6 +1,6 @@
 # Handoff — CSP, caching, and feedback repair
 
-## Status: ready to deploy
+## Status: deployed and verified
 
 This repair resolves every release blocker recorded in
 `.factory/verification.md` for candidate `71eefff` while preserving the
@@ -63,18 +63,29 @@ Evidence from this repair:
   same-origin normal-free-use requests, service worker controls root scope,
   `registration.update()` succeeds, and offline reload renders the app.
 
-## Post-deployment checks required
+## Live deployment evidence
 
-After deploying `dist/` to `https://future-skills-portfolio.sociobot.in/`:
+Deployed with `/opt/fleet/lib/deploy-static.sh future-skills-portfolio dist`
+on 2026-08-28 UTC. Azure Static Web Apps deployment
+`9531f65e-9aed-4670-8e1b-2800da2418b8` succeeded and
+`https://future-skills-portfolio.sociobot.in/` returned HTTPS 200.
 
-1. Confirm fresh desktop and 390px loads have zero console errors and that
-   the two empty progress elements have values 0/4 and 0/3.
-2. Confirm a hashed `/assets/index-*.js` and `/assets/index-*.css` response
-   sends `Cache-Control: public, max-age=31536000, immutable`; confirm
-   `sw.js` revalidates.
-3. Run `/opt/fleet/lib/verify-url.sh` against the live URL and repeat the
-   service-worker offline/update smoke check.
+- The live `index.html`, `index-BSy1kADk.js`, `index-C6mPKneA.css`, and
+  `sw.js` SHA-256 values exactly match `dist/`.
+- Live JS and CSS both return
+  `Cache-Control: public, max-age=31536000, immutable`; live `sw.js` returns
+  `Cache-Control: no-cache, must-revalidate`. The strict deployed CSP remains
+  `style-src 'self'`.
+- Live `verify-url.sh` passed in 678 ms with zero console/page errors, a
+  title, `lang="en"`, one h1, main landmark, zero missing image alts, and zero
+  unnamed buttons. A live 390px axe scan has zero serious/critical findings.
+- Fresh live 390px Chromium reports progress values 0/4 and 0/3 with no inline
+  `style`, no horizontal overflow (390/390), and no console/page errors. Tab
+  reaches the skip link; the artifact dialog initially focuses
+  `#artifact-title` and Escape closes it. The service worker controls root
+  scope, accepts `registration.update()`, and an offline reload renders the
+  app. Normal free use requested only the site origin.
 
 ## Known gaps
 
-None. The next step is the static deployment and its live-header verification.
+None.
