@@ -1,0 +1,25 @@
+Commit: d69e75f6631f28a00928c9402b59782423ea7832
+Fresh clone: /tmp/fsp-polish3-clean-KIfgod
+Date: 2026-08-28 UTC
+
+Commands passed
+- npm ci (0 vulnerabilities)
+- npm run build (dist/index.html; 55,280 B JavaScript raw; 27,240 B CSS raw)
+- npm test (18 Vitest assertions; 58 Playwright checks across desktop and mobile)
+
+Every claims-manifest command was run separately and passed on desktop and mobile:
+- demo-isolation
+- offline-reload
+- private-free-use
+- checkout-disabled
+- included-deck
+- challenge-filters
+- work-records
+- print-results
+- portfolio-export
+- portfolio-import
+- deck-export
+- licensed-import
+- routing-metadata
+- local-authoring
+- static-build
