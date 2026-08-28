@@ -1,5 +1,5 @@
-Clean clone: /tmp/fsp-polish2-clean-jMsAFr
-Commit: d7749c5ea00f78cac3e42466e05afd42ced66652
+Clean clone: /tmp/fsp-polish2-final-ImXdU3
+Commit: af35ebfe98b157cda5918c160eba1b709dbe2ff2
 Install: npm ci — PASS, 0 vulnerabilities
 Build: npm run build — PASS
 Claims: all 14 manifest commands run separately — PASS (28/28 desktop/mobile cases)
