@@ -32,7 +32,7 @@
 | F-1-17 | Rewrote the next README sentence as a 10-word concrete action. | README line 5; `@claim:work-records`. |
 | F-1-18 | Kept the short visual-system and provenance pointer. | README “Product and visual notes.” |
 | F-1-19 | Kept MIT and CC BY wording in separate short sentences. | `@claim:deck-export`, `@claim:licensed-import`, `@claim:static-build`. |
-| F-1-20 | Updated the catalog line to an 88-character verb-first sentence. The same summary remains in the brief. | `.factory/catalog-description.txt`; length check = 88. |
+| F-1-20 | Updated the catalog line to an 86-character verb-first sentence. The same summary remains in the brief. | `.factory/catalog-description.txt`; JavaScript character count = 86. |
 
 ## Earlier verification regression checks
 

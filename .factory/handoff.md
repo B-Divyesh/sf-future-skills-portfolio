@@ -10,7 +10,7 @@ All findings in `.factory/review-1.md` and `.factory/review-2.md` are closed. Th
 - Demo storage remains isolated under `demo:future-skills-portfolio:v1`; reset and exit never change `future-skills-portfolio:v1`.
 - Public copy now says “work record,” removes the inaccurate six-week sample and unsupported AI/career wording, and clearly labels the external Creative Commons link.
 - `.factory/claims.json` now has 14 claims with exactly one tagged test each. Filtering, complete work-record persistence, all-card content, import locality, real-workspace offline behavior, and build assertions are covered.
-- The catalog description is verb-first and 88 characters. The service-worker cache is versioned to `future-skills-v5`.
+- The catalog description is verb-first and 86 characters. The service-worker cache is versioned to `future-skills-v5`.
 
 The glacial-minimal-ceramics visual system, original generated art, static deployment class, print treatment, and local-first architecture are unchanged.
 
