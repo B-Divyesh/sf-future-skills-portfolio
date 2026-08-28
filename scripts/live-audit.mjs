@@ -5,7 +5,7 @@ import { chromium } from "playwright";
 const base = process.argv[2] ?? "https://future-skills-portfolio.sociobot.in";
 const evidence = process.argv[3] ?? ".factory/evidence/polish-2/live";
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
-const results = { base, checkedAt: new Date().toISOString(), routes: {}, requests: [], axe: {}, mobile: {}, offline: {}, demo: {} };
+const results = { base, checkedAt: new Date().toISOString(), routes: {}, requests: [], axe: {}, mobile: {}, offline: {}, demo: {}, focus: {}, externalLink: {} };
 await mkdir(evidence, { recursive: true });
 
 const browser = await chromium.launch();
@@ -24,6 +24,14 @@ assert(await page.locator("h1").innerText() === "Build a portfolio of math and c
 assert(await page.getByRole("link", { name: "Try it with sample data" }).isVisible(), "sample action missing");
 assert(await page.locator('a[href*="/checkout"]').count() === 0, "checkout link still visible");
 await page.screenshot({ path: `${evidence}/home-cold-desktop.png`, fullPage: true });
+const homeCopy = await page.locator("main").innerText();
+for (const removed of ["six-week", "Log an artifact", "reviewable work", "No AI scoring"]) assert(!homeCopy.includes(removed), `obsolete copy remains: ${removed}`);
+const ccLink = page.getByRole("link", { name: "CC BY 4.0 (opens Creative Commons)" });
+const ccHref = await ccLink.getAttribute("href");
+assert(ccHref === "https://creativecommons.org/licenses/by/4.0/", "external CC link is missing or unclear");
+const ccResponse = await context.request.get(ccHref);
+assert(ccResponse.ok(), `Creative Commons link returned ${ccResponse.status()}`);
+results.externalLink = { label: await ccLink.innerText(), href: ccHref, status: ccResponse.status() };
 
 for (const [path, title] of [["/", "Future Skills Portfolio — Printable math challenges"], ["/demo", "Demo — Future Skills Portfolio"], ["/privacy", "Privacy — Future Skills Portfolio"], ["/terms", "Terms — Future Skills Portfolio"], ["/missing-challenge", "Page not found — Future Skills Portfolio"]]) {
   const response = await page.goto(`${base}${path}?cold=polish-2`, { waitUntil: "networkidle" });
@@ -41,6 +49,13 @@ for (const [path, title] of [["/", "Future Skills Portfolio — Printable math c
   assert(serious.length === 0, `${path} has serious axe findings`);
 }
 
+await page.goto(`${base}/?cold=focus-polish-2`, { waitUntil: "networkidle" });
+await page.getByRole("navigation").getByRole("link", { name: "Privacy" }).click();
+assert(await page.locator(":focus").innerText() === "How your work stays private", "route click did not focus the privacy heading");
+await page.goBack();
+assert(await page.locator(":focus").innerText() === "Build a portfolio of math and computing work", "back navigation did not focus the home heading");
+results.focus = { privacyClick: true, back: true };
+
 await page.goto(`${base}/?cold=polish-2`, { waitUntil: "networkidle" });
 const sentinel = JSON.stringify({ artifacts: [], customChallenges: [], savedIds: ["explain-black-box"] });
 await page.evaluate(([key, value]) => localStorage.setItem(key, value), ["future-skills-portfolio:v1", sentinel]);
@@ -52,6 +67,7 @@ assert(await page.evaluate((key) => localStorage.getItem(key), "future-skills-po
 await page.getByRole("button", { name: "Reset demo" }).click();
 assert(await page.locator(".artifact-list > li").count() === 4, "demo reset failed");
 await page.setViewportSize({ width: 390, height: 844 });
+await page.goto(`${base}/?demo=1&cold=first-viewport`, { waitUntil: "networkidle" });
 assert(await page.locator("h1").innerText() === "Inspect four completed work records", "demo starts with the wrong heading");
 assert(await page.locator(".demo-progress").evaluate((element) => element.getBoundingClientRect().top < innerHeight), "demo progress is below the first viewport");
 assert(await page.locator(".demo-records > li").count() === 2, "demo preview needs two work records");

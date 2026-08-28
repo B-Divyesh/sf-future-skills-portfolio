@@ -239,6 +239,7 @@ test("@claim:local-authoring saves a family challenge only inside the demo names
 test("@claim:static-build ships a framework-free local asset bundle within its stated budgets", async ({ page }) => {
   const html = await readFile("dist/index.html", "utf8");
   const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+  const staticWebApp = JSON.parse(await readFile("public/staticwebapp.config.json", "utf8"));
   const license = await readFile("LICENSE", "utf8");
   const jsPath = html.match(/src="(\/assets\/index-[^"]+\.js)"/)?.[1];
   const cssPath = html.match(/href="(\/assets\/index-[^"]+\.css)"/)?.[1];
@@ -248,6 +249,8 @@ test("@claim:static-build ships a framework-free local asset bundle within its s
   expect((await stat(`dist${cssPath}`)).size).toBeLessThanOrEqual(50_000);
   expect(packageJson.engines.node).toBe(">=20");
   expect(packageJson.dependencies).toBeUndefined();
+  expect(packageJson.scripts.dev).toBe("vite");
+  expect(staticWebApp.globalHeaders["Content-Security-Policy"]).toContain("default-src 'self'");
   expect(license).toContain("MIT License");
   expect(await page.locator('script[src^="http"], link[rel="stylesheet"][href^="http"]').count()).toBe(0);
   const results = await new AxeBuilder({ page }).analyze();

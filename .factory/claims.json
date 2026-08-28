@@ -92,7 +92,7 @@
   },
   {
     "id": "static-build",
-    "claim": "The product is a static TypeScript site with local assets and initial JS and CSS within factory budgets.",
+    "claim": "The product builds to dist as a static TypeScript site with local assets, Azure configuration, and initial JS and CSS within factory budgets.",
     "where": "README and build output",
     "test": "npm run test:claims -- --grep @claim:static-build",
     "sandbox": "production dist from clean build; measure emitted JS/CSS, inspect external scripts/styles, and run axe"
