@@ -1,92 +1,67 @@
-# Handoff — CSP, caching, and feedback repair
+# Verification handoff — FAIL
 
-## Status: deployed and verified
+## Status
 
-This repair resolves every release blocker recorded in
-`.factory/verification.md` for candidate `71eefff` while preserving the
-researched brief, static Vite + TypeScript artifact, local-first storage, and
-the existing free and paid-deck behaviors.
+**FAIL** for candidate `67e8ce504386abdbf8fff522f6d4b538d27afde4` at
+<https://future-skills-portfolio.sociobot.in/>, independently verified on
+2026-08-28 UTC. The live deploy matches the candidate byte-for-byte for the
+built shell, JS, CSS, service worker, manifest, and hero assets. This is not a
+deployment-only failure.
 
-## What changed
+## Release blockers
 
-- Replaced CSP-blocked inline-width progress fills with native, labelled
-  `<progress>` elements. Empty portfolios now render as real `0 / 4` and
-  `0 / 3` progress, without weakening `style-src 'self'`.
-- Added Azure Static Web Apps route headers: content-hashed `/assets/*` now
-  receive `Cache-Control: public, max-age=31536000, immutable`; `sw.js` and
-  the manifest revalidate with `no-cache, must-revalidate`.
-- Made persistence feedback render after the subsequent UI replacement, so
-  successful custom challenge creation and valid deck import retain their
-  visible live-region toast. The same safeguard covers other save-and-render
-  actions.
-- Mirrored the production CSP in Vite development and preview servers, and
-  made Playwright run the production build. Browser tests therefore catch CSP
-  integration regressions before deployment.
-- Versioned the service-worker cache to `future-skills-v3` and use
-  `ignoreVary` for same-origin cache lookups. This makes the offline shell
-  robust in preview servers that emit `Vary: Origin`, while cache keys remain
-  same-origin content-hashed URLs.
+- **P1 data loss:** when local storage rejects writes, artifact submission says
+  “Artifact saved on this device,” displays the artifact, and loses it on
+  reload. Core writes must check and surface persistence failure.
+- **P1 licensing:** deck import accepts a challenge with no reuse license and
+  persists it with `license: null`, allowing it to be shared again despite the
+  brief's mandatory contributor-license constraint.
+- **P1 accessibility:** at 390px and 200% text size, page width grows from 390
+  to 442px (controls extend farther), causing page-level horizontal scrolling.
+- **P2 recovery:** valid JSON containing a malformed custom challenge causes a
+  persistent blank page and `Cannot read properties of undefined (reading
+  'replace')` instead of a safe recovery state.
+- **P3 semantics:** axe reports one moderate
+  `landmark-complementary-is-top-level` issue for the nested share-panel aside.
 
-## Regression coverage
+Full reproductions and evidence are in `.factory/verification-2.md`.
 
-- `src/deployment.test.ts` asserts the strict CSP and exact Azure cache
-  policies for assets, service worker, and manifest.
-- The desktop and 390px Playwright suite asserts semantic zero-valued progress
-  with no inline style, runs under the strict CSP with zero console errors,
-  and verifies the custom-create and valid-import confirmation toasts.
+## What passed
 
-## Verification before deployment
+- Clean `npm ci`: 62 packages audited, 0 vulnerabilities.
+- `npm test`: 11 Vitest assertions and 12 production-build Playwright cases
+  passed across desktop and 390×844 mobile.
+- `npm run build`: type check and Vite production build passed; `dist/` exists.
+- Normal live artifact, custom challenge, invalid-input recovery, import/export,
+  deletion confirmation, legal-route, print, and invalid-license paths work.
+- Four UI-created artifacts across six modes persist and reach the target.
+- Live desktop/mobile/dialog axe: zero serious or critical findings; keyboard
+  focus/dialog behavior and reduced motion pass.
+- Live PWA update and offline reload pass with an explicit offline state.
+- Normal free use makes only same-origin requests. CSP and security headers are
+  present; hashed assets are immutable; HTML revalidation returns 304.
+- Budgets pass: JS 45,063 B, CSS 21,308 B, mobile hero 23,704 B.
+- Lighthouse mobile: Performance 99, Accessibility 100, Best Practices 100,
+  SEO 100; FCP 0.9s, LCP 1.0s, TBT 120ms, CLS 0.
 
-Run from the repository root:
+## Re-run
 
 ```sh
 npm ci
 npm test
 npm run build
+VERIFY_NODE_MODULES="$PWD/node_modules" /opt/fleet/lib/verify-url.sh \
+  https://future-skills-portfolio.sociobot.in/ /tmp/fsp-verify
 ```
 
-Evidence from this repair:
+After repair, explicitly repeat storage-denial artifact saving, import of a
+license-less deck, malformed local-state reload, 390px/200%-text reflow, live
+axe, service-worker update/offline reload, response-header checks, Lighthouse,
+and byte-for-byte deploy identity.
 
-- Clean `npm ci`: 62 packages audited, 0 vulnerabilities.
-- Unit/integration: 11 Vitest tests passed. Chromium production-build tests
-  passed on desktop (6/6) and 390×844 mobile (6/6), including axe serious and
-  critical checks.
-- Type check and production build passed. `dist/` contains its root
-  `index.html`; initial JS is 45,063 B raw and CSS is 21,308 B raw, both below
-  the product budgets. The mobile hero is 23,704 B WebP.
-- Local production `verify-url.sh` passed: title/lang/one h1/main/alt/button
-  checks pass, 0 browser errors, 642 ms observed load. Local Lighthouse mobile
-  reported Performance 100 and Accessibility 100 (FCP/LCP 1.1 s, CLS 0).
-- Production-build 390px manual smoke check: no horizontal overflow
-  (390/390), skip link receives keyboard focus, artifact dialog focuses
-  `#artifact-title` and closes with Escape, 0 console/page errors, only
-  same-origin normal-free-use requests, service worker controls root scope,
-  `registration.update()` succeeds, and offline reload renders the app.
+## Verification boundary
 
-## Live deployment evidence
-
-Deployed with `/opt/fleet/lib/deploy-static.sh future-skills-portfolio dist`
-on 2026-08-28 UTC. Azure Static Web Apps deployment
-`9531f65e-9aed-4670-8e1b-2800da2418b8` succeeded and
-`https://future-skills-portfolio.sociobot.in/` returned HTTPS 200.
-
-- The live `index.html`, `index-BSy1kADk.js`, `index-C6mPKneA.css`, and
-  `sw.js` SHA-256 values exactly match `dist/`.
-- Live JS and CSS both return
-  `Cache-Control: public, max-age=31536000, immutable`; live `sw.js` returns
-  `Cache-Control: no-cache, must-revalidate`. HTML remains short-lived with
-  `Cache-Control: public, must-revalidate, max-age=30`. The strict deployed
-  CSP remains `style-src 'self'`.
-- Live `verify-url.sh` passed in 678 ms with zero console/page errors, a
-  title, `lang="en"`, one h1, main landmark, zero missing image alts, and zero
-  unnamed buttons. A live 390px axe scan has zero serious/critical findings.
-- Fresh live 390px Chromium reports progress values 0/4 and 0/3 with no inline
-  `style`, no horizontal overflow (390/390), and no console/page errors. Tab
-  reaches the skip link; the artifact dialog initially focuses
-  `#artifact-title` and Escape closes it. The service worker controls root
-  scope, accepts `registration.update()`, and an offline reload renders the
-  app. Normal free use requested only the site origin.
-
-## Known gaps
-
-None.
+No production purchase or valid paid license was available, so checkout was
+not transacted. The checkout URL, actual invalid-license API response, CORS,
+no-store policy, token stripping, relocking, and user-facing error recovery
+were verified.
