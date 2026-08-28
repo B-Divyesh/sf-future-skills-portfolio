@@ -1,0 +1,30 @@
+{
+  "slug": "future-skills-portfolio",
+  "title": "Future Skills Portfolio",
+  "territory": "games-creative",
+  "user": "A parent or home-school educator unsure how to develop a child's math/CS strengths in an AI-rich world and needing concrete, human-reviewable challenges rather than predictions about careers.",
+  "evidence": [
+    {
+      "url": "https://hn.algolia.com/api/v1/items/46634159",
+      "date": "2026-01-15",
+      "quote_or_summary": "A home-schooling parent asks what to teach a mathematically and computationally talented child when AI appears to solve advanced math and coding tasks."
+    },
+    {
+      "url": "https://github.com/ankitects/anki/issues/3833",
+      "date": "2025-02-22",
+      "quote_or_summary": "Anki is considering a cross-platform add-on/template system, demonstrating ongoing demand to adapt a learning tool's activities rather than use a fixed curriculum."
+    }
+  ],
+  "recurrence": "A direct parent concern and an independent request for adaptable learning templates show that fixed content is a poor response to changing goals. The concern is consequential but emerging.",
+  "current_workaround": "Continue with standard worksheets/coding courses, follow AI news anxiously, or assemble disconnected projects and competitions.",
+  "incumbents_and_gap": "Khan Academy, Scratch, and coding platforms supply exercises; they do not help a family curate a portfolio of explanation, modelling, debugging, collaboration, and judgment challenges with a transparent adult rubric.",
+  "smallest_useful_product": "A printable/static challenge deck for ages 10–16: each card has a build/explain/critique task, material limits, reflection prompts, and a parent/peer rubric; families can create and share local decks. Non-goals: career prediction, AI tutoring, child social network, or data collection.",
+  "success_measure": "In a six-week family pilot, each child completes four artifacts across at least three skill modes and an adult can cite a concrete growth observation for each artifact.",
+  "artifact_class": "static-web",
+  "monetization": "one-time — families can buy a curated deck, while the base format remains printable and durable.",
+  "constraints": "Age-appropriate and offline by default; no child accounts or public profiles; contributors must license challenges for reuse; avoid claims about future employability.",
+  "est_build_effort": "S",
+  "why_distinct": "It turns an abstract AI-era anxiety into varied human capabilities demonstrated through artifacts, not an AI course for children.",
+  "confidence": 3,
+  "state": "BUILT"
+}
