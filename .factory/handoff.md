@@ -74,8 +74,9 @@ on 2026-08-28 UTC. Azure Static Web Apps deployment
   `sw.js` SHA-256 values exactly match `dist/`.
 - Live JS and CSS both return
   `Cache-Control: public, max-age=31536000, immutable`; live `sw.js` returns
-  `Cache-Control: no-cache, must-revalidate`. The strict deployed CSP remains
-  `style-src 'self'`.
+  `Cache-Control: no-cache, must-revalidate`. HTML remains short-lived with
+  `Cache-Control: public, must-revalidate, max-age=30`. The strict deployed
+  CSP remains `style-src 'self'`.
 - Live `verify-url.sh` passed in 678 ms with zero console/page errors, a
   title, `lang="en"`, one h1, main landmark, zero missing image alts, and zero
   unnamed buttons. A live 390px axe scan has zero serious/critical findings.
