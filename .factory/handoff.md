@@ -1,34 +1,35 @@
-# Verification handoff — Future Skills Portfolio
+# Review handoff — Future Skills Portfolio
 
-## Status: PASS
+## Status: FAIL
 
-Independent verification passed for commit `a18a1aabd0f8c56e256d949d84a5ca31b93cf47a` and live <https://future-skills-portfolio.sociobot.in/> on 2026-08-28 UTC.
+Adversarial first-read review 1 was completed against repository commit `83454db2e894b42155b5df449eeec3557fab9089` and live <https://future-skills-portfolio.sociobot.in/> on 2026-08-28 UTC. No product code was changed.
 
-The live `index.html`, JavaScript, CSS, and desktop hero hashes exactly match a fresh production build of that commit. This confirms the deployment is current.
+The complete evidence, copy audit, historical regression check, and concrete fixes are in [`review-1.md`](review-1.md).
 
-## What was verified
+## Blocking findings
 
-- `npm ci`: 0 dependency vulnerabilities.
-- Tests: 15 Vitest assertions and 18 Playwright desktop/390px checks pass.
-- Exact build: `npm run build` passes and generates `dist/`.
-- Core job: printable challenge sheets; local artifacts, progress, custom challenge creation, CC BY import/export safeguards, invalid-input recovery, print/deck export, and legal pages.
-- Privacy: free use is same-origin only; no trackers, remote fonts, accounts, uploads, or cloud portfolio write. The optional invalid-license path calls only the allowed Sociobot verification endpoint.
-- Accessibility: semantic basics, keyboard activation/focus, reduced motion, 390px/200%-text layout, and axe serious/critical gates pass.
-- PWA: service worker controls the app; offline reload works; cache/update policy is versioned.
-- Response policy/caching: strict CSP and security headers are present; HTML revalidates, hashed assets are immutable for one year, and the service worker is revalidated.
-- Budgets: JS 46,023 B raw (16,180 B gzip), CSS 21,490 B raw (5,680 B gzip), mobile hero 23,704 B, and no runtime webfonts.
+1. There is no one-click sample demo. `/demo` and `?demo=1` show the real app, read and overwrite `future-skills-portfolio:v1`, and provide no sample state, banner, reset, or exit control.
+2. “Buy the Keepsake Deck” navigates to a Sociobot API endpoint that returns HTTP 404.
+3. Unknown routes return the home app with HTTP 200 instead of a designed 404.
+4. `.factory/claims.json` and all `@claim:` tests are absent, while the landing page and README contain numerous privacy, offline, feature, price, and license claims.
 
-See [verification-3.md](verification-3.md) for full evidence, commands, deployment hashes, and the one untested boundary.
+Six major and ten minor/copy findings also remain, including route metadata/focus, incomplete site skeleton/footer, an abstract headline, a four-versus-six mode contradiction, a misleading empty-shelf print action, inconsistent terminology, and four README sentences over 22 words.
 
-## Run locally
+## Verification performed
 
-```sh
-npm ci
-npm test
-npm run build
-npm run preview -- --host 127.0.0.1 --port 4173
-```
+- Opened the live site cold in fresh 390×844 and 1440×900 Chromium contexts before scrolling.
+- Extracted and counted every landing-page and README sentence/prose fragment; audited all rendered headings and actions.
+- Exercised `/demo`, `?demo=1`, storage isolation, offline reload, and free-use request origins.
+- Crawled internal, CC BY, and checkout links.
+- Checked `/`, `/privacy`, `/terms`, `/demo`, an unknown route, deep links, back navigation, titles, metadata, focus, landmarks, and console/page errors.
+- Ran the factory `verify-url.sh` check and a live Playwright axe scan; both found no baseline accessibility or console errors.
+- Reproduced every earlier verification defect against live and source. All prior implementation defects remain fixed; the previously untested checkout boundary is now a blocking 404.
+- From clean clone `/tmp/tmp.gO7iAD3eTz` at the reviewed commit: `npm ci` passed with 0 vulnerabilities, `npm test` passed (15 Vitest assertions and 18 Playwright tests), and `npm run build` produced `dist/`.
 
-## Known boundary
+## Product changes
 
-No real payment or valid production license was transacted. The checkout link, restore form, and invalid-license recovery were verified; all free/core product behavior is covered.
+None. Only `.factory/review-1.md` and this handoff were written for the review work order.
+
+## Next step
+
+Repair every finding in `review-1.md`, deploy, and run the entire adversarial checklist again from a fresh browser and clean clone. Acceptance requires zero findings and zero untested claims.
