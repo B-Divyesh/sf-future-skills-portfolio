@@ -1,0 +1,7 @@
+Clean clone: /tmp/fsp-polish2-clean-jMsAFr
+Commit: d7749c5ea00f78cac3e42466e05afd42ced66652
+Install: npm ci — PASS, 0 vulnerabilities
+Build: npm run build — PASS
+Claims: all 14 manifest commands run separately — PASS (28/28 desktop/mobile cases)
+Full suite: npm test — PASS (16/16 unit, 54/54 Playwright)
+Built assets: JS 50,889 bytes raw; CSS 26,660 bytes raw
