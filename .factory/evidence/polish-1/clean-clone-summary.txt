@@ -1,0 +1,7 @@
+Clean clone: /tmp/fsp-polish-clean-saeBKp
+Commit: ec3a1b8
+Date: 2026-08-28 UTC
+npm ci: PASS, 0 vulnerabilities
+Claims manifest: PASS, all 12 commands run independently, 24/24 desktop/mobile cases
+npm test: PASS, 16 Vitest assertions and 50 Playwright checks
+npm run build: PASS, dist/index.html produced

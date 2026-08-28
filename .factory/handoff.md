@@ -1,35 +1,77 @@
-# Review handoff — Future Skills Portfolio
+# Repair handoff — Future Skills Portfolio polish 1
 
-## Status: FAIL
+## Status: PASS
 
-Adversarial first-read review 1 was completed against repository commit `83454db2e894b42155b5df449eeec3557fab9089` and live <https://future-skills-portfolio.sociobot.in/> on 2026-08-28 UTC. No product code was changed.
+All 20 findings in `.factory/review-1.md` are resolved and mapped in `.factory/polish-1.md`. The repair preserves the static Vite/TypeScript artifact and the glacial ceramic visual system.
 
-The complete evidence, copy audit, historical regression check, and concrete fixes are in [`review-1.md`](review-1.md).
+**Implementation commit:** `ec3a1b8`
 
-## Blocking findings
+**Deployment:** Azure Static Web Apps production deployment `a7ba9bae-a3e7-4604-8f47-d5b491ee2824`
 
-1. There is no one-click sample demo. `/demo` and `?demo=1` show the real app, read and overwrite `future-skills-portfolio:v1`, and provide no sample state, banner, reset, or exit control.
-2. “Buy the Keepsake Deck” navigates to a Sociobot API endpoint that returns HTTP 404.
-3. Unknown routes return the home app with HTTP 200 instead of a designed 404.
-4. `.factory/claims.json` and all `@claim:` tests are absent, while the landing page and README contain numerous privacy, offline, feature, price, and license claims.
+**Live:** <https://future-skills-portfolio.sociobot.in/>
 
-Six major and ten minor/copy findings also remain, including route metadata/focus, incomplete site skeleton/footer, an abstract headline, a four-versus-six mode contradiction, a misleading empty-shelf print action, inconsistent terminology, and four README sentences over 22 words.
+**Demo:** <https://future-skills-portfolio.sociobot.in/?demo=1>
 
-## Verification performed
+## What changed
 
-- Opened the live site cold in fresh 390×844 and 1440×900 Chromium contexts before scrolling.
-- Extracted and counted every landing-page and README sentence/prose fragment; audited all rendered headings and actions.
-- Exercised `/demo`, `?demo=1`, storage isolation, offline reload, and free-use request origins.
-- Crawled internal, CC BY, and checkout links.
-- Checked `/`, `/privacy`, `/terms`, `/demo`, an unknown route, deep links, back navigation, titles, metadata, focus, landmarks, and console/page errors.
-- Ran the factory `verify-url.sh` check and a live Playwright axe scan; both found no baseline accessibility or console errors.
-- Reproduced every earlier verification defect against live and source. All prior implementation defects remain fixed; the previously untested checkout boundary is now a blocking 404.
-- From clean clone `/tmp/tmp.gO7iAD3eTz` at the reviewed commit: `npm ci` passed with 0 vulnerabilities, `npm test` passed (15 Vitest assertions and 18 Playwright tests), and `npm run build` produced `dist/`.
+- Rewrote the first screen around the family’s task and added three concrete facts.
+- Added a seeded, resettable demo in a separate `demo:` storage namespace.
+- Added 12 public claims with one tagged browser test per claim.
+- Added route-specific metadata, History API focus behavior, real legal routes, and an HTTP 404 page.
+- Added the missing how-it-works and privacy/non-goals sections, consistent navigation, and build ownership in the footer.
+- Standardized challenge, deck, artifact, portfolio, and skill-mode language across UI and README.
+- Removed the dead paid checkout and every price or purchase action. New purchases are not represented while the upstream product is disabled.
+- Added a product-derived social card, touch icon, `/demo` sitemap entry, and versioned offline shell.
+- Kept prior storage-denial, corrupt-state, CC BY import, CSP, caching, reflow, dialog, and feedback repairs intact.
 
-## Product changes
+## Exact verification
 
-None. Only `.factory/review-1.md` and this handoff were written for the review work order.
+Clean clone `/tmp/fsp-polish-clean-saeBKp` at `ec3a1b8`:
 
-## Next step
+- `npm ci`: PASS, 0 vulnerabilities.
+- Every command in `.factory/claims.json`: PASS independently, 12 claims and 24 desktop/mobile cases.
+- `npm test`: PASS, 16 Vitest assertions and 50 Playwright checks across desktop and 390px Chromium.
+- `npm run build`: PASS; `dist/index.html` produced.
+- Initial JavaScript: 49,461 B raw / 16.96 KB gzip (budget ≤200 KB).
+- Initial CSS: 24,565 B raw / 6.30 KB gzip (budget ≤50 KB).
+- Mobile hero: 23,704 B (budget ≤300 KB). Runtime fonts: 0 B.
 
-Repair every finding in `review-1.md`, deploy, and run the entire adversarial checklist again from a fresh browser and clean clone. Acceptance requires zero findings and zero untested claims.
+Local mobile Lighthouse: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.1 s, LCP 1.2 s, CLS 0, TBT 0 ms.
+
+Live cold checks after deployment:
+
+- `/`, `/demo`, `/privacy`, and `/terms`: HTTP 200 with the correct title, canonical, description, one h1, and one main.
+- `/missing-challenge`: HTTP 404 with “Page not found” and a home action.
+- Axe: zero serious or critical findings on all five route states.
+- Demo: four artifacts; reset works; the real storage value remains byte-for-byte unchanged; exit deletes the demo key.
+- Mobile at 200% text: `scrollWidth=390`, `clientWidth=390`.
+- Offline demo reload: four artifacts and visible offline status.
+- Browser health: zero unexpected console or page errors.
+- Privacy: all requests observed in the complete cold flow were same-origin.
+- Factory `verify-url.sh`: PASS in 941 ms with title/lang/main/alt/button checks.
+- Live mobile Lighthouse: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.0 s, LCP 1.1 s, CLS 0, TBT 40 ms, 49 KiB transferred.
+
+Deployment byte identity:
+
+| File | SHA-256 |
+| --- | --- |
+| `index.html` | `3789f2e270235cfc34a3ca9167f3470d0468de9f53d51290f579c76acbd7d69a` |
+| `assets/index-BpiRrhTv.js` | `111430979ffe48a89ad7410c7446e63f1ce206130a9c0f49e3ecfc704f84c729` |
+| `assets/index-CYKaDfkG.css` | `2fc7e588df9e58167b0c9c14dc4509e4f44fda8843c38faaa1cc9964e384a2c1` |
+| `sw.js` | `06d9a9ff0c185cc51b1a2541bb8ac401c861229ecf37c0a4290e7b8cb5a6faa6` |
+| `assets/social-card.jpg` | `0790131c574532a025d552850f4c3ddf4d3ee8c2f63c92a5851f900645648057` |
+
+Evidence is in `.factory/evidence/polish-1/`, especially `live/live-audit.json`, `live/verify.json`, `live/lighthouse-mobile.json`, and the cold desktop/mobile screenshots.
+
+## Known gaps and next steps
+
+No review finding or product defect remains open. The external Sociobot checkout product is still disabled, so the product honestly offers no new purchase flow. A future billing work order may restore it only after endpoint reachability and hosted-checkout tests pass.
+
+## Run locally
+
+```sh
+npm ci
+npm test
+npm run build
+npm run preview
+```
