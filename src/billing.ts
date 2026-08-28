@@ -14,35 +14,49 @@ export function captureLicense(): void {
   const url = new URL(window.location.href);
   const token = url.searchParams.get("license");
   if (!token) return;
-  localStorage.setItem(LICENSE_KEY, token.trim());
-  localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: true, checkedAt: 0 } satisfies Verdict));
+  try {
+    localStorage.setItem(LICENSE_KEY, token.trim());
+    localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: true, checkedAt: 0 } satisfies Verdict));
+  } catch {
+    // The free experience remains available when browser storage is blocked.
+  }
   url.searchParams.delete("license");
   history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
 }
 
-export function storeLicense(token: string): void {
-  localStorage.setItem(LICENSE_KEY, token.trim());
-  localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: true, checkedAt: 0 } satisfies Verdict));
+export function storeLicense(token: string): boolean {
+  try {
+    localStorage.setItem(LICENSE_KEY, token.trim());
+    localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: true, checkedAt: 0 } satisfies Verdict));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function clearLicense(): void {
-  localStorage.removeItem(LICENSE_KEY);
-  localStorage.removeItem(VERDICT_KEY);
+  try {
+    localStorage.removeItem(LICENSE_KEY);
+    localStorage.removeItem(VERDICT_KEY);
+  } catch {
+    // Nothing else to clear when storage is unavailable.
+  }
 }
 
 export function hasOptimisticUnlock(): boolean {
-  const token = localStorage.getItem(LICENSE_KEY);
-  if (!token) return false;
   try {
+    const token = localStorage.getItem(LICENSE_KEY);
+    if (!token) return false;
     const verdict = JSON.parse(localStorage.getItem(VERDICT_KEY) ?? "null") as Verdict | null;
     return verdict?.valid !== false;
   } catch {
-    return true;
+    return false;
   }
 }
 
 export async function verifyLicense(force = false): Promise<"valid" | "invalid" | "offline" | "none"> {
-  const token = localStorage.getItem(LICENSE_KEY);
+  let token: string | null;
+  try { token = localStorage.getItem(LICENSE_KEY); } catch { return "none"; }
   if (!token) return "none";
   try {
     const cached = JSON.parse(localStorage.getItem(VERDICT_KEY) ?? "null") as Verdict | null;
@@ -54,7 +68,7 @@ export async function verifyLicense(force = false): Promise<"valid" | "invalid" 
     const response = await fetch(`https://api.sociobot.in/api/v1/products/${SLUG}/verify?license=${encodeURIComponent(token)}`);
     if (!response.ok) throw new Error("Verification unavailable");
     const result = (await response.json()) as { valid: boolean };
-    localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: result.valid, checkedAt: Date.now() } satisfies Verdict));
+    try { localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: result.valid, checkedAt: Date.now() } satisfies Verdict)); } catch { /* Verification still applies in memory. */ }
     return result.valid ? "valid" : "invalid";
   } catch {
     return "offline";

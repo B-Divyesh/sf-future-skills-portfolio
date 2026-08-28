@@ -29,7 +29,7 @@ npm run preview
 
 `npm run build` passed and produced `dist/index.html`. Production bundle measurements:
 
-- JavaScript: 45.05 KB raw / 15.94 KB gzip (budget: 200 KB)
+- JavaScript: 45.17 KB raw / 15.95 KB gzip (budget: 200 KB)
 - CSS: 21.09 KB raw / 5.58 KB gzip (budget: 50 KB)
 - Mobile hero WebP: 23.7 KB (budget: 300 KB)
 - No downloaded font files and no third-party runtime scripts
